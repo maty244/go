@@ -1,7 +1,7 @@
 # 📖 Gocito — mi biblia de Go
 
-Biblioteca personal de estudio de Go, desde cero hasta concurrencia (con la
-mira puesta en dominar el lenguaje para hacer APIs REST y programas reales).
+Biblioteca personal de estudio de Go, desde cero hasta APIs REST (con la
+mira puesta en dominar el lenguaje para hacer APIs y programas reales).
 Cada carpeta es **un tema**: un `main.go` ejecutable, con comentarios en español
 que explican qué hace cada cosa, ejemplos prácticos y un resumen al final.
 Los temas de `Testing/` además incluyen un `main_test.go` con tests reales.
@@ -34,7 +34,10 @@ que rompen, mirá los errores del compilador.
    biblioteca estándar que usa cualquier programa real.
 8. **Contexto** (01 → 04) y **Logging** (01 → 03): antes de concurrencia.
 9. **Testing** (01 → 06): aprendé a testear antes de meterte en concurrencia.
-10. **Concurrencia** (01 → 10): el bloque más avanzado, se apoya en TODO lo anterior.
+10. **Concurrencia** (01 → 10): el bloque más avanzado del lenguaje, se apoya en TODO lo anterior.
+11. **APIRest** (01 → 12): el objetivo final — acá se junta todo. Cada tema
+    levanta su propio servidor y se hace requests a sí mismo: `go run` y ves
+    la película completa.
 
 ---
 
@@ -259,6 +262,30 @@ que rompen, mirá los errores del compilador.
 
 ---
 
+## 🌐 APIRest (12 temas)
+
+Cada tema levanta un servidor y se hace requests a sí mismo: con `go run`
+ves el diálogo cliente ↔ servidor completo en la consola, sin curl ni Postman.
+El `12_ejercicio_integrador` además acepta `SERVIDOR=1 go run .` para quedar
+vivo y probarlo vos desde el browser o curl.
+
+| # | Tema | Qué cubre |
+|---|------|-----------|
+| 01 | `01_que_es_http` | Anatomía de request/response, métodos, qué significa REST |
+| 02 | `02_primer_servidor` | Handlers, `http.HandleFunc`, `ListenAndServe`, la interfaz `http.Handler` |
+| 03 | `03_routing_moderno` | ServeMux de Go 1.22+: `GET /productos/{id}`, `PathValue`, 404/405 gratis |
+| 04 | `04_responder_json` | Helper `responderJSON`, Content-Type, errores con forma consistente |
+| 05 | `05_leer_json_del_body` | `Decode` del body, `MaxBytesReader`, `DisallowUnknownFields`, validación |
+| 06 | `06_status_codes` | 200/201/204/400/401/403/404/405/409/500: cuándo va cada uno |
+| 07 | `07_query_params_y_headers` | Filtros y paginación con `?limite=`, leer/escribir headers |
+| 08 | `08_middleware` | `func(http.Handler) http.Handler`: logging con slog + recover de panics |
+| 09 | `09_middleware_auth` | `Authorization: Bearer`, 401, rutas públicas vs protegidas |
+| 10 | `10_http_client` | Consumir APIs de terceros: timeout SIEMPRE, chequear status, decodificar |
+| 11 | `11_graceful_shutdown` | `http.Server`, `Shutdown(ctx)`: apagar sin cortar requests en curso |
+| 12 | `12_ejercicio_integrador` | La API completa del Kiosco: CRUD + auth + middlewares + Mutex |
+
+---
+
 ## 🗺️ Hoja de ruta completa: de acá a dominar Go
 
 El objetivo NO es aprender todo (imposible), sino dominar lo necesario para
@@ -283,8 +310,8 @@ Los paquetes que usa el 90% de los programas reales, cubiertos en `JSON/`,
 Cubierto en `Testing/`: `go test`, table-driven tests, subtests con `t.Run`,
 coverage, testing de errores y panics.
 
-> Pendiente menor: `httptest` (testear handlers sin levantar el servidor) se
-> retoma cuando lleguemos a la Etapa 5.
+> Pendiente menor: `httptest` (testear handlers sin levantar el servidor) —
+> con `APIRest/` ya hecho, es el candidato ideal para el primer proyecto real.
 
 ### ✅ Etapa 4 — Concurrencia 🔀 (hecho)
 
@@ -292,23 +319,25 @@ Cubierto en `Concurrencia/`: goroutines, `sync.WaitGroup`, channels (con y sin
 buffer), `select`, `sync.Mutex`, el detector de *race conditions* (`-race`),
 worker pools y `context` combinado con goroutines.
 
-### Etapa 5 — APIs REST 🌐 (el objetivo, sigue)
+### ✅ Etapa 5 — APIs REST 🌐 (hecho, salvo DB)
 
-Acá se junta TODO lo anterior. Go trae casi todo en la stdlib: con `net/http`
-solo ya se hacen APIs profesionales.
+Cubierto en `APIRest/`: servidor y handlers, routing moderno de Go 1.22+,
+JSON in/out con validación, status codes, query params y headers, middlewares
+(logging, recover, auth con Bearer token), `http.Client` con timeouts, y
+graceful shutdown. Todo con la stdlib sola.
 
-1. **net/http servidor** — `http.HandleFunc`, `http.ListenAndServe`, qué es un handler
-2. **Routing moderno** — el `ServeMux` de Go 1.22+: `GET /tareas/{id}` con métodos y parámetros nativos
-3. **JSON in/out** — decodificar el body del request, responder JSON, status codes correctos (200, 201, 400, 404, 500)
-4. **Middleware** — funciones que envuelven handlers: logging, recuperar panics, CORS, auth (son closures + interfaces ✨)
-5. **http.Client** — consumir APIs de terceros (con timeouts SIEMPRE)
-6. **Base de datos** — `database/sql` + driver de PostgreSQL (`pgx`); queries, `QueryRow`, transacciones; migrar esquemas
-7. **Estructura de proyecto** — layout `cmd/` + `internal/`, separar handlers / servicios / repositorios
-8. **Config** — variables de entorno, valores por defecto, secretos fuera del código
-9. **Validación** — validar el input del usuario antes de tocar la DB
-10. **Auth con JWT** — login, tokens, middleware de autenticación
-11. **Graceful shutdown** — apagar el servidor sin cortar requests a la mitad (`context` + señales)
-12. **Frameworks (opcional)** — `chi`, `Gin`, `Echo`: conocelos, pero la stdlib alcanza y los recruiters valoran que la domines
+Lo que queda de esta etapa (necesita dependencias externas y va en secciones
+propias, se estudia junto a los proyectos):
+
+1. **Base de datos** → sección `BaseDatos/` futura: `database/sql` + driver de
+   PostgreSQL (`pgx`); queries, transacciones; el `Almacen` del ejercicio
+   integrador ya está diseñado para reemplazarlo por esto
+2. **Auth con JWT real** — la idea ya está en `APIRest/09`; falta solo la
+   librería (`github.com/golang-jwt/jwt`) y la firma criptográfica
+3. **Estructura de proyecto** — layout `cmd/` + `internal/`: se aprende
+   armando el primer proyecto real, no con un tema suelto
+4. **Frameworks (opcional)** — `chi`, `Gin`, `Echo`: conocelos, pero la stdlib
+   alcanza y los recruiters valoran que la domines
 
 ### Etapa 6 — Herramientas y producción 🚀
 
