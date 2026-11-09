@@ -30,11 +30,15 @@ type Estado struct {
 type Gestor struct{ estado Estado }
 
 func Nuevo(estado Estado) *Gestor {
+	// Copiar Estado copia el descriptor del slice, no su array. Creamos otro
+	// array para que el llamador no modifique el estado interno. Basta aquí
+	// porque los campos que cambiamos de Tarea no comparten datos mutables.
 	estado.Tareas = append([]Tarea(nil), estado.Tareas...)
 	if estado.SiguienteID < 1 {
 		estado.SiguienteID = 1
 	}
 	for _, tarea := range estado.Tareas {
+		// Al reabrir un archivo no reutilizamos IDs que ya estaban guardados.
 		if tarea.ID >= estado.SiguienteID {
 			estado.SiguienteID = tarea.ID + 1
 		}
@@ -43,6 +47,8 @@ func Nuevo(estado Estado) *Gestor {
 }
 
 func (g *Gestor) Agregar(titulo string, ahora time.Time) (Tarea, error) {
+	// El receptor puntero permite cambiar estado. Recibir el tiempo permite
+	// que los tests usen una fecha fija en vez de depender del reloj real.
 	titulo = strings.TrimSpace(titulo)
 	if titulo == "" {
 		return Tarea{}, ErrTituloVacio
@@ -55,6 +61,8 @@ func (g *Gestor) Agregar(titulo string, ahora time.Time) (Tarea, error) {
 }
 
 func (g *Gestor) Completar(id int64, ahora time.Time) (Tarea, error) {
+	// Usamos índices para modificar el elemento real; range por valor nos
+	// daría una copia de Tarea y sus cambios no llegarían al slice.
 	for i := range g.estado.Tareas {
 		if g.estado.Tareas[i].ID != id {
 			continue
@@ -67,10 +75,12 @@ func (g *Gestor) Completar(id int64, ahora time.Time) (Tarea, error) {
 }
 
 func (g *Gestor) Listar() []Tarea {
+	// Un array distinto protege el estado de mutaciones externas.
 	return append([]Tarea(nil), g.estado.Tareas...)
 }
 
 func (g *Gestor) Estado() Estado {
+	// Esta instantánea para persistencia también necesita su propio array.
 	estado := g.estado
 	estado.Tareas = append([]Tarea(nil), g.estado.Tareas...)
 	return estado

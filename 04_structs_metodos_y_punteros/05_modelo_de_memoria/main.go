@@ -119,8 +119,9 @@ func main() {
 	fmt.Println("3. Slice y map se 'comparten' entre funciones sin puntero")
 	fmt.Println("   (Pero append al slice no se propaga sin retorno!)")
 	fmt.Println()
-	fmt.Println("4. Copias son SEGURAS: garantizan que nadie modifica tu dato")
-	fmt.Println("   Usa copias cuando quieras inmutabilidad del argumento")
+	fmt.Println("4. Copiar un valor no garantiza independencia de sus datos internos")
+	fmt.Println("   Structs/arrays con slices, maps o punteros pueden seguir compartiéndolos")
+	fmt.Println("   Ver 14_copias_superficiales_y_profundas para separar esos datos")
 
 	// ─────────────────────────────────────────────────────────
 	// TABLA RESUMEN
@@ -130,8 +131,7 @@ func main() {
 	fmt.Println("  ─────────────┼──────────────┼──────────────────────│")
 	fmt.Println("  int, float   │ valor (copia)│ solo con *T          │")
 	fmt.Println("  bool, string │ valor (copia)│ solo con *T          │")
-	fmt.Println("  struct       │ valor (copia)│ solo con *T          │")
-	fmt.Println("  array        │ valor (copia)│ solo con *T          │")
+	fmt.Println("  struct/array │ valor (copia)│ datos internos: depende de sus campos │")
 	fmt.Println("  slice        │ descriptor   │ elementos sí, len no │")
 	fmt.Println("  map          │ descriptor   │ entradas sí          │")
 	fmt.Println("  *T (puntero) │ dirección    │ destino sí           │")

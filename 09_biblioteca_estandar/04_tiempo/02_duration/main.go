@@ -55,7 +55,7 @@ func main() {
 	// time.ParseDuration: DESDE UN TEXTO
 	// ─────────────────────────────────────────────────────────
 	// Útil para leer duraciones desde config, argumentos de línea
-	// de comandos, o variables de entorno (09_biblioteca_estandar/02_archivos/, más adelante).
+	// de comandos, o variables de entorno (ya vistos en 09_biblioteca_estandar/02_archivos/).
 
 	fmt.Println("\n=== ParseDuration: texto → Duration ===")
 

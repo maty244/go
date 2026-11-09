@@ -256,10 +256,13 @@ func main() {
 	fmt.Println("\n=== Inmutabilidad defensiva: clonar y modificar ===")
 
 	original := Pedido{ID: 1, Producto: "Notebook", Cantidad: 1, Precio: 1500.00}
+	copiaManual := clonar(original)
+	copiaManual.Cantidad = 3
 	conDescuento := aplicarDescuento(original, 0.10) // 10% descuento
 
-	fmt.Printf("Original:     %s → $%.2f\n", original.Producto, original.Precio)
-	fmt.Printf("Con 10%% dto:  %s → $%.2f\n", conDescuento.Producto, conDescuento.Precio)
+	fmt.Printf("Original:     %s (cant=%d) → $%.2f\n", original.Producto, original.Cantidad, original.Precio)
+	fmt.Printf("Copia manual: %s (cant=%d) → $%.2f\n", copiaManual.Producto, copiaManual.Cantidad, copiaManual.Precio)
+	fmt.Printf("Con 10%% dto:  %s (cant=%d) → $%.2f\n", conDescuento.Producto, conDescuento.Cantidad, conDescuento.Precio)
 	fmt.Println("  → El original NO se tocó (recibimos/retornamos por valor)")
 
 	// ─────────────────────────────────────────────────────────

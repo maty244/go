@@ -7,4 +7,7 @@ func TestRutaImport(t *testing.T) {
 	if err != nil || ruta != "gocito/catalogo" {
 		t.Fatalf("ruta=%q err=%v", ruta, err)
 	}
+	if _, err := RutaImport("", "catalogo"); err == nil {
+		t.Fatal("faltó rechazar módulo vacío")
+	}
 }

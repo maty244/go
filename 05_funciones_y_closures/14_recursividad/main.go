@@ -58,6 +58,9 @@ func potencia(base, exponente int) int {
 // ─────────────────────────────────────────────────────────
 // sumaDigitos(1234) = 1+2+3+4 = 10
 func sumaDigitos(n int) int {
+	if n < 0 {
+		n = -n
+	}
 	if n < 10 { // CASO BASE: n es un solo dígito
 		return n
 	}
@@ -65,8 +68,12 @@ func sumaDigitos(n int) int {
 }
 
 // ─────────────────────────────────────────────────────────
-// RECURSIÓN CON ACUMULADOR (más eficiente, evita re-cálculos)
+// RECURSIÓN CON ACUMULADOR (RECURSIÓN DE COLA) Y TCO EN GO
 // ─────────────────────────────────────────────────────────
+// En factorialConAcum la llamada recursiva es la ÚLTIMA operación (recursión de cola).
+// ¡DATO CLAVE DE GO!: A diferencia de lenguajes funcionales puros, el compilador de Go
+// NO hace "Tail Call Optimization" (TCO) general para mantener los stack traces claros.
+// Por eso, en Go la recursión sigue consumiendo 1 frame de stack por llamada (O(n) memoria).
 func factorialConAcum(n, acum int) int {
 	if n <= 1 {
 		return acum
@@ -74,14 +81,21 @@ func factorialConAcum(n, acum int) int {
 	return factorialConAcum(n-1, n*acum) // pasa el resultado acumulado
 }
 
+// Donde un acumulador SÍ hace una diferencia brutal en Go es en Fibonacci:
+// fibonacci(n) clásico recalcula ramas y tarda O(2^n), mientras que
+// fibonacciConAcum(n, 0, 1) avanza en línea recta y tarda O(n) sin recalcular nada.
+func fibonacciConAcum(n, actual, siguiente int) int {
+	if n == 0 {
+		return actual
+	}
+	return fibonacciConAcum(n-1, siguiente, actual+siguiente)
+}
+
 // ─────────────────────────────────────────────────────────
 // VISUALIZAR EL STACK DE LLAMADAS
 // ─────────────────────────────────────────────────────────
 func factorialVisual(n, nivel int) int {
-	espacio := ""
-	for i := 0; i < nivel; i++ {
-		espacio += "  "
-	}
+	espacio := strings.Repeat("  ", nivel)
 	fmt.Printf("%s→ factorial(%d)\n", espacio, n)
 
 	if n <= 1 {
@@ -131,6 +145,7 @@ func main() {
 	for i := 0; i <= 10; i++ {
 		fmt.Printf("  %2d! = %d\n", i, factorial(i))
 	}
+	fmt.Printf("  Con acumulador factorialConAcum(5, 1) = %d\n", factorialConAcum(5, 1))
 
 	// ─────────────────────────────────────────────────────────
 	// FIBONACCI
@@ -141,6 +156,7 @@ func main() {
 		fmt.Printf("%d ", fibonacci(i))
 	}
 	fmt.Println()
+	fmt.Printf("  Fibonacci(40) rápido con acumulador: %d\n", fibonacciConAcum(40, 0, 1))
 
 	// ─────────────────────────────────────────────────────────
 	// POTENCIA

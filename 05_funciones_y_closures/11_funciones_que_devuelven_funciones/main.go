@@ -50,7 +50,7 @@ func main() {
 	// mejorada de ella, que hace algo antes y/o después de llamarla.
 	// Esto es la base de los "middlewares" que vas a ver en HTTP.
 
-	fmt.Println("\n=== Decorador: medir cuánto tarda una función ===")
+	fmt.Println("\n=== Decorador: loguear entrada y salida de una función ===")
 
 	sumaLenta := func(a, b int) int {
 		return a + b
@@ -124,8 +124,10 @@ func crearLimitador(maximo int) func() bool {
 	}
 }
 
-func longitudMinima(min int) func(string) bool {
+// Usamos "minimo" en lugar de "min" para no sombrear la función predeclarada min() de Go 1.21+.
+// Nota: len(s) mide bytes (para contar caracteres Unicode/runas usarías utf8.RuneCountInString(s)).
+func longitudMinima(minimo int) func(string) bool {
 	return func(s string) bool {
-		return len(s) >= min
+		return len(s) >= minimo
 	}
 }

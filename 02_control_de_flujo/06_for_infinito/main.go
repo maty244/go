@@ -53,6 +53,10 @@ func main() {
 	idx := 0
 	saldo := 1000.0
 
+	// OJO: un "break" normal dentro de un "switch" solo sale del switch, NO del for.
+	// Para salir del for desde adentro de un switch, usamos una etiqueta (break MENU)
+	// o un return (si estamos en una función dedicada).
+MENU:
 	for {
 		if idx >= len(entradas) {
 			break
@@ -83,12 +87,11 @@ func main() {
 			fmt.Printf("Tu saldo es: $%.2f\n", saldo)
 		case "4":
 			fmt.Println("¡Hasta luego!")
-			goto salir // salida controlada
+			break MENU // sale del for externo (no solo del switch)
 		default:
 			fmt.Println("Opción inválida")
 		}
 	}
-salir:
 	fmt.Printf("Saldo final: $%.2f\n", saldo)
 
 	// ─────────────────────────────────────────────────────────
@@ -127,7 +130,7 @@ salir:
 		// Simulamos que ocasionalmente hay un trabajo inválido
 		if trabajo.ID == 3 {
 			fmt.Println("  [Worker] ⚠️ Trabajo #3 marcado como problemático, continuando")
-			continue // saltamos al siguiente (aunque en for{} esto vuelve al inicio)
+			continue // saltamos al siguiente (vuelve al inicio del for{})
 		}
 	}
 	fmt.Printf("Worker procesó %d trabajos\n", procesados)
@@ -136,7 +139,7 @@ salir:
 	// PATRÓN REAL: Polling / monitoreo periódico
 	// ─────────────────────────────────────────────────────────
 	// Muy común en sistemas que necesitan revisar algo regularmente.
-	// En producción se usaría time.Sleep o un ticker de verdad.
+	// En producción se usaría un intervalo mayor o un time.Ticker.
 
 	fmt.Println("\n=== Polling periódico (simulado, 3 ciclos) ===")
 
@@ -158,8 +161,8 @@ salir:
 			break
 		}
 
-		// En producción: time.Sleep(5 * time.Second)
-		_ = time.Millisecond // referenciamos time para el import
+		// Pausa breve entre chequeos (en producción podría ser 5 * time.Second)
+		time.Sleep(1 * time.Millisecond)
 	}
 
 	// ─────────────────────────────────────────────────────────

@@ -8,9 +8,9 @@ import (
 // =========================================================
 // error ES UNA INTERFAZ (a fondo)
 // =========================================================
-// En 06_interfaces_y_errores/12_patron_de_errores usaste "error" todo el tiempo, pero ahora que
-// sabés qué es una interfaz podemos ver su definición REAL, que
-// vive en el paquete builtin de Go:
+// En Go vas a usar el tipo "error" todo el tiempo (y lo profundizamos a
+// partir de 12_patron_de_errores). Ahora que sabés qué es una interfaz
+// podemos ver su definición REAL, que vive en el paquete builtin de Go:
 //
 //   type error interface {
 //       Error() string
@@ -70,9 +70,9 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	// RECUPERAR EL TIPO CONCRETO DEL ERROR (type assertion)
 	// ─────────────────────────────────────────────────────────
-	// Ya viste esto en 06_interfaces_y_errores/12_patron_de_errores con errors.As. Ahora que
-	// sabés de interfaces, esto es exactamente lo mismo que el
-	// tema 05 (type assertion), aplicado al caso de error.
+	// Como error es una interfaz, podés recuperar su tipo concreto con
+	// type assertion (tema 05) o, mejor aún en código real, con
+	// errors.AsType[T] / errors.As (que vemos a fondo en el tema 16).
 
 	fmt.Println("\n=== Recuperar detalles con type assertion ===")
 	err = comprar("Teclado", 20, 3)

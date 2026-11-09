@@ -14,7 +14,7 @@ import (
 //
 // El paquete "encoding/json" de la librería estándar convierte
 // entre structs de Go y texto JSON. Es EL paquete que vas a usar
-// constantemente cuando construyas tu primera API (HTTP/, más
+// constantemente cuando construyas tu primera API (13_http_rest/, más
 // adelante en la hoja de ruta).
 //
 //   json.Marshal(valor)   → convierte un valor de Go A JSON (bytes)
@@ -49,8 +49,8 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	// Por defecto, JSON usa el MISMO nombre que el campo de Go.
 	// Como en Go los campos exportados empiezan con mayúscula
-	// (06_interfaces_y_errores/Paquetes ya vieron esto), el JSON generado
-	// también tiene esas claves en mayúscula. En el tema 02 vemos
+	// (07_paquetes_modulos_y_herramientas/03_visibilidad ya vio esto), el JSON generado
+	// también tiene esas claves en mayúscula. En el tema 03 vemos
 	// cómo controlar esto con "tags".
 
 	// ─────────────────────────────────────────────────────────

@@ -61,7 +61,7 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	// Esto es EXACTAMENTE lo que hacen los frameworks web: envuelven
 	// cada request en un recover(), para que un bug en un handler
-	// no tumbe el servidor completo. Lo vas a ver de nuevo en HTTP/.
+	// no tumbe el servidor completo. Lo vas a ver de nuevo en 13_http_rest.
 
 	fmt.Println("\n=== Caso real: procesar pedidos sin que uno tumbe todo el lote ===")
 	pedidos := []int{10, 5, 0, 8} // el 0 va a generar un panic simulado

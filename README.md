@@ -1,8 +1,10 @@
-# 📖 Gocito — ruta completa para dominar Go 1.26
+# 📖 Gocito — entender Go 1.26 paso a paso
 
 Gocito es una biblioteca personal de estudio en español. La meta no es
 memorizar todo el lenguaje: es poder leer, diseñar, probar y mantener programas
-Go con confianza, y llegar a servidores HTTP sin arrastrar dudas de la base.
+Go con confianza, entendiendo qué hace cada instrucción, qué datos se copian
+y cómo se ejecuta el programa. El foco es el lenguaje, su runtime y sus
+herramientas; HTTP es una aplicación opcional de lo aprendido.
 
 El repositorio usa **Go 1.26** y solamente la biblioteca estándar. Cada carpeta
 es una etapa y cada subcarpeta numerada es una lección ejecutable.
@@ -24,7 +26,8 @@ Usá siempre este ciclo:
 1. **Leé** el objetivo y el código de arriba abajo.
 2. **Predecí** la salida antes de ejecutarlo.
 3. **Ejecutá** la carpeta completa.
-4. **Modificá** valores y provocá errores deliberadamente.
+4. **Modificá** valores y provocá errores deliberadamente. Usá `PRACTICA.md`
+   de la etapa: tiene experimentos, resultados esperados y preguntas.
 5. **Resolvé** el reto de la etapa sin abrir la solución.
 6. **Compará** tu diseño con `soluciones/`, no solo el resultado final.
 
@@ -45,8 +48,9 @@ go test -tags reto ./01_fundamentos/retos
 
 ## Ruta de estudio
 
-Seguí las etapas en orden. Dentro de cada etapa, seguí la numeración de sus
-lecciones.
+La ruta principal va de `00` a `12`. Dentro de cada etapa, seguí la numeración
+de sus lecciones. Algunas ampliaciones usan conceptos de etapas posteriores:
+el README de la etapa indica cuándo volver a ellas.
 
 - [ ] [00 — Inicio](./00_inicio/README.md): entorno, anatomía y método de estudio.
 - [ ] [01 — Fundamentos](./01_fundamentos/README.md): valores, tipos, funciones básicas y errores iniciales.
@@ -61,7 +65,10 @@ lecciones.
 - [ ] [10 — Testing](./10_testing/README.md): tests, fuzzing, benchmarks, coverage y race detector.
 - [ ] [11 — Proyecto CLI](./11_proyecto_cli/README.md): gestor de tareas persistente y probado.
 - [ ] [12 — Concurrencia](./12_concurrencia/README.md): goroutines, sincronización, cancelación y leaks.
-- [ ] [13 — HTTP REST](./13_http_rest/README.md): servidores, clientes, middleware y una API completa.
+
+Ampliación opcional:
+
+- [ ] [13 — HTTP REST](./13_http_rest/README.md): aplicar Go a servidores y clientes cuando te interese la web.
 
 ## Qué significa “dominar” esta ruta
 
@@ -73,7 +80,8 @@ Al terminar deberías poder:
 - organizar un módulo con paquetes y límites claros;
 - escribir tests útiles, benchmarks y fuzz tests;
 - coordinar goroutines sin carreras ni fugas;
-- construir y apagar correctamente un servidor HTTP con la biblioteca estándar;
+- distinguir las reglas del lenguaje de las decisiones del compilador/runtime;
+- investigar errores y medir el costo de una función antes de optimizarla;
 - detectar qué parte todavía no sabés y encontrarla en la documentación oficial.
 
 ## Comandos de salud del repositorio
@@ -89,22 +97,46 @@ go fix -diff ./...
 `go fix -diff` puede sugerir modernizaciones dentro de lecciones que conservan
 una forma histórica a propósito. En esos casos la lección explica ambas formas.
 
+`go test` compila los paquetes, pero no ejecuta sus funciones `main`. Para
+observar una lección usá `go run ./su/carpeta`. Los retos incompletos quedan
+fuera de los tests normales; con `-tags reto` es esperable que fallen hasta
+resolverlos. Las lecciones de carreras tienen ejemplos incorrectos a propósito:
+su `go run -race` puede terminar con un reporte de error.
+
+## Cómo leer los comentarios
+
+Primero identificá el tipo de cada valor, su scope y quién puede modificarlo.
+Después seguí el flujo: llamada → resultado/error → siguiente instrucción.
+No alcanza con saber que una línea imprime algo: intentá explicar por qué ese
+valor es el que llega a la impresión.
+
+Los diagramas de headers, stack y heap son modelos para razonar. La semántica
+del lenguaje garantiza los resultados observables; el compilador puede cambiar
+la ubicación física o eliminar copias sin cambiar ese comportamiento.
+
+Algunos ejemplos antiguos usan precios con `float64` para enseñar funciones o
+colecciones. Son valores didácticos, no un modelo de cobro. La lección
+`01_fundamentos/19_dinero_con_enteros` explica esa limitación y los integradores
+que usan `Dinero` expresan centavos. Estudiar dinero no es un requisito para
+entender el lenguaje.
+
 ## Después de esta base
 
-La siguiente ruta, deliberadamente fuera de esta revisión, es:
+Volvé a resolver los ejercicios sin mirar el ejemplo, investigá con `go doc`
+y medí con benchmarks y perfiles. La lección de compilador/runtime de `07` y
+la de diagnóstico de `10` sirven para profundizar en cómo funciona Go sin
+necesitar un servidor.
 
-1. PostgreSQL con `database/sql` y un driver.
-2. Autenticación real, autorización y gestión de secretos.
-3. Estructura de servicios, observabilidad y despliegue.
-4. Protocol Buffers y gRPC.
-
-Primero dominá la base. Una librería o framework se aprende mucho más rápido
-cuando el lenguaje debajo ya no es una incógnita.
+Después elegí una aplicación que te interese: herramientas de terminal,
+procesamiento de archivos, simulaciones o, si querés, HTTP y bases de datos.
 
 ## Fuentes oficiales
 
 - [Especificación de Go](https://go.dev/ref/spec)
 - [Documentación de la biblioteca estándar](https://pkg.go.dev/std)
+- [Strings, bytes, runes y caracteres](https://go.dev/blog/strings)
+- [Modelo de memoria y sincronización](https://go.dev/ref/mem)
+- [Diagnóstico y perfiles](https://go.dev/doc/diagnostics)
 - [Notas de Go 1.22](https://go.dev/doc/go1.22)
 - [Notas de Go 1.23](https://go.dev/doc/go1.23)
 - [Notas de Go 1.25](https://go.dev/doc/go1.25)

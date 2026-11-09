@@ -91,9 +91,9 @@ func main() {
 	// RESUMEN
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== RESUMEN ===")
-	fmt.Println("  errors.Join(e1, e2, e3)  → un solo error que combina varios")
+	fmt.Println("  errors.Join(e1, e2, e3)  → un solo error que combina varios (implementa Unwrap() []error)")
 	fmt.Println("  Ignora los nil           → útil con varias validaciones")
-	fmt.Println("  errors.Is/As             → siguen funcionando sobre CADA error del join")
+	fmt.Println("  errors.Is/As/AsType      → siguen funcionando sobre CADA error del join")
 	fmt.Println("  Usalo para               → validar formularios completos, no cortar al primer error")
 }
 

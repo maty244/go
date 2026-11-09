@@ -1,5 +1,8 @@
 # 11 — Proyecto CLI: gestor de tareas
 
+La [práctica guiada](./PRACTICA.md) propone experimentos, resultados esperados
+y preguntas para comprobar que entendiste el comportamiento.
+
 ## Objetivo
 
 Juntar lenguaje, paquetes, IO, JSON y tests en un programa pequeño pero real.

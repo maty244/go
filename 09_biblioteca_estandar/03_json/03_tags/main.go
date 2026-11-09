@@ -49,12 +49,21 @@ func main() {
 	// tienen su valor cero y usan omitempty/omitzero.
 
 	// ─────────────────────────────────────────────────────────
-	// omitempty EN ACCIÓN
+	// omitempty Y omitzero (Go 1.24+) EN ACCIÓN
 	// ─────────────────────────────────────────────────────────
-	fmt.Println("\n=== omitempty: se omite si el valor es el zero value ===")
+	// - omitempty: omite números en 0, strings "", bools false, slices/maps vacíos y punteros nil.
+	// - omitzero (Go 1.24+): además omite structs en su zero value o cuyo método
+	//   IsZero() devuelva true (como time.Time{}, que omitempty clásico NO omitía).
+	fmt.Println("\n=== omitempty y omitzero: se omiten si son zero value ===")
 
 	sinDescuento := ProductoAPI{Nombre: "Mouse", PrecioCentavos: 850_000, Stock: 20}
-	conDescuento := ProductoAPI{Nombre: "Mouse", PrecioCentavos: 850_000, Stock: 20, DescuentoPct: 10}
+	conDescuento := ProductoAPI{
+		Nombre:         "Mouse",
+		PrecioCentavos: 850_000,
+		Stock:          20,
+		DescuentoPct:   10,
+		ActualizadoEn:  time.Date(2026, time.July, 5, 12, 0, 0, 0, time.UTC),
+	}
 
 	d1, err := json.Marshal(sinDescuento)
 	if err != nil {
@@ -67,8 +76,8 @@ func main() {
 		return
 	}
 
-	fmt.Println("Sin descuento:", string(d1)) // "descuento" NO aparece
-	fmt.Println("Con descuento:", string(d2)) // "descuento" SÍ aparece
+	fmt.Println("Sin descuento:", string(d1)) // "descuento_pct" y "actualizado_en" NO aparecen
+	fmt.Println("Con descuento:", string(d2)) // "descuento_pct" y "actualizado_en" SÍ aparecen
 
 	// ─────────────────────────────────────────────────────────
 	// UNMARSHAL TAMBIÉN RESPETA LOS TAGS

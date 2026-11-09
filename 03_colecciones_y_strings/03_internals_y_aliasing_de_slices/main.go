@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"slices"
+)
 
 // =========================================================
 // SLICES: DESCRIPTOR, ALIASING Y ARRAY SUBYACENTE
@@ -74,37 +77,55 @@ func main() {
 	fmt.Println("  → Después del realloc, c y d son INDEPENDIENTES")
 
 	// ─────────────────────────────────────────────────────────
-	// 3. SUBSLICE: comparte el mismo array
+	// 3. SUBSLICE: comparte el mismo array (y expresión de 3 índices)
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== Subslice: ventana sobre el mismo array ===")
 
 	original := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
-	mitad := original[3:7] // [3, 4, 5, 6] — comparte array
+	mitad := original[3:7] // [3, 4, 5, 6] — comparte array (len=4, cap=7)
 
 	fmt.Printf("original = %v\n", original)
-	fmt.Printf("mitad    = %v  (original[3:7])\n", mitad)
+	fmt.Printf("mitad    = %v  (original[3:7], len=%d, cap=%d)\n", mitad, len(mitad), cap(mitad))
 
 	mitad[0] = 300 // modifica original[3]
 	fmt.Printf("\nDespués de mitad[0] = 300:\n")
 	fmt.Printf("original = %v  (original[3] cambió!)\n", original)
 	fmt.Printf("mitad    = %v\n", mitad)
 
+	// Expresión de 3 índices: s[inicio:fin:capMax]
+	// Limita la capacidad del subslice (cap = capMax - inicio) para que un
+	// append sobre el subslice NO pueda pisar los elementos siguientes de original:
+	subSeguro := original[3:5:5] // len=2, cap=2 (5-3)
+	subSeguro = append(subSeguro, 888)
+	fmt.Printf("\nCon 3 índices original[3:5:5] + append(888):\n")
+	fmt.Printf("  subSeguro = %v (forzó nuevo array)\n", subSeguro)
+	fmt.Printf("  original  = %v (original[5] NO fue pisado)\n", original)
+
 	// ─────────────────────────────────────────────────────────
-	// 4. COPY: la solución para copias independientes
+	// 4. COPY, SLICES.CLONE Y CLEAR
 	// ─────────────────────────────────────────────────────────
-	fmt.Println("\n=== copy(): copia real del array ===")
+	fmt.Println("\n=== copy() y slices.Clone(): copia real del array ===")
 
 	fuente := []int{10, 20, 30, 40, 50}
 	destino := make([]int, len(fuente)) // nuevo array
 
 	n := copy(destino, fuente) // copia los valores, no el puntero
-	fmt.Printf("Copiados: %d elementos\n", n)
+	fmt.Printf("Copiados con copy(): %d elementos\n", n)
+
+	// Forma moderna (Go 1.21+): slices.Clone crea una copia independiente en un paso
+	clon := slices.Clone(fuente)
 
 	destino[0] = 9999 // no afecta a fuente
+	clon[1] = 8888    // tampoco afecta a fuente
 
 	fmt.Printf("fuente  = %v (intacto)\n", fuente)
-	fmt.Printf("destino = %v (copia independiente)\n", destino)
-	fmt.Println("  → copy() es la forma correcta de hacer una copia real")
+	fmt.Printf("destino = %v (copia con copy)\n", destino)
+	fmt.Printf("clon    = %v (copia con slices.Clone)\n", clon)
+
+	// clear(s) (Go 1.21+): pone todos los elementos del slice en su zero value
+	// manteniendo su longitud y capacidad (no cambia len a 0).
+	clear(clon)
+	fmt.Printf("clon después de clear(clon) = %v (len=%d, cap=%d)\n", clon, len(clon), cap(clon))
 
 	// ─────────────────────────────────────────────────────────
 	// 5. FUNCIONES Y SLICES: qué se puede modificar y qué no

@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"sort"
+	"slices"
 )
 
 func main() {
@@ -40,13 +40,19 @@ func main() {
 	copia[0] = 99
 	fmt.Printf("\nOriginal: %v | Copia: %v (independientes)\n", original, copia)
 
+	// Los arrays SÍ son comparables con == (si sus elementos son comparables)
+	fmt.Println("¿[3]int{1,2,3} == original?:", [3]int{1, 2, 3} == original) // true
+
 	// ─────────────────────────────────────────────────────────
 	// SLICES: tamaño DINÁMICO, la herramienta principal de Go
 	// ─────────────────────────────────────────────────────────
-	// Un slice es una VISTA sobre un array subyacente.
+	// Un slice es una VISTA (descriptor) sobre un array subyacente.
 	// Tiene tres componentes: puntero, longitud (len), capacidad (cap).
-	// Es mutable, puede crecer con append().
+	// Es mutable y puede crecer con append().
 	// En la práctica, casi siempre usamos slices, no arrays.
+	//
+	// ⚠️ A diferencia de los arrays, los slices NO se pueden comparar con ==
+	// (salvo contra nil: s == nil). Para comparar dos slices usá slices.Equal(a, b).
 
 	fmt.Println("\n=== Slices ===")
 
@@ -58,6 +64,7 @@ func main() {
 	// Slice literal
 	notas := []int{9, 7, 8, 6, 10, 5}
 	fmt.Printf("notas: %v | len=%d | cap=%d\n", notas, len(notas), cap(notas))
+	fmt.Println("¿notas iguales a copia?:", slices.Equal(notas, []int{9, 7, 8, 6, 10, 5}))
 
 	// Acceso por índice
 	fmt.Println("Primera nota:", notas[0])
@@ -117,12 +124,33 @@ func main() {
 	fmt.Println("base:", base)   // [1 99 3 4 5] ← modificado!
 	fmt.Println("vista:", vista) // [99 3 4]
 
-	// Para una copia independiente, usar copy()
+	// Para una copia independiente, usar copy() o slices.Clone()
 	independiente := make([]int, len(base[1:4]))
 	copy(independiente, base[1:4])
 	independiente[0] = 777
 	fmt.Println("independiente:", independiente) // [777 3 4]
 	fmt.Println("base sin cambios:", base)       // no modificado
+
+	// ─────────────────────────────────────────────────────────
+	// CONVERSIÓN ENTRE ARRAY Y SLICE
+	// ─────────────────────────────────────────────────────────
+	// 1. Array → Slice: haciendo slicing con arr[:] (comparten memoria).
+	// 2. Slice → Array (Go 1.20+): [N]T(slice) COPIA los primeros N elementos
+	//    a un array nuevo (ojo: hace panic si len(slice) < N).
+	// 3. Slice → Puntero a Array (Go 1.17+): (*[N]T)(slice) apunta a los
+	//    primeros N elementos del array subyacente SIN copiar.
+	fmt.Println("\n=== Conversión Array ↔ Slice ===")
+	arrFijo := [4]int{10, 20, 30, 40}
+	sliceDesdeArr := arrFijo[:] // Array → Slice (vista compartida)
+	fmt.Println("Array a Slice (arrFijo[:]):", sliceDesdeArr)
+
+	arrCopiado := [3]int(sliceDesdeArr) // Slice → Array (copia independiente)
+	arrCopiado[0] = 999
+	fmt.Printf("Slice a Array ([3]int(s)): %v | arrFijo sigue intacto: %v\n", arrCopiado, arrFijo)
+
+	ptrArr := (*[2]int)(sliceDesdeArr) // Slice → *[2]int (comparte memoria)
+	ptrArr[0] = 111
+	fmt.Printf("Puntero (*[2]int)(s): %v | arrFijo modificado: %v\n", *ptrArr, arrFijo)
 
 	// ─────────────────────────────────────────────────────────
 	// COPY: copiar slices
@@ -135,38 +163,48 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	// ELIMINAR ELEMENTOS DE UN SLICE
 	// ─────────────────────────────────────────────────────────
-	// Go no tiene función built-in para eliminar. Se hace con append.
+	// Se puede hacer manualmente con append o con slices.Delete (Go 1.21+).
 	frutas := []string{"manzana", "banana", "naranja", "uva", "mango"}
 	fmt.Println("\n=== Eliminar elemento ===")
 	fmt.Println("Original:", frutas)
 
 	i := 2                                       // índice de "naranja"
-	frutas = append(frutas[:i], frutas[i+1:]...) // elimina índice 2
-	fmt.Println("Sin 'naranja':", frutas)
+	frutas = append(frutas[:i], frutas[i+1:]...) // forma clásica con append
+	fmt.Println("Sin 'naranja' (append):", frutas)
+
+	frutas = slices.Delete(frutas, 1, 2) // forma moderna: elimina rango [1, 2) ("banana")
+	fmt.Println("Sin 'banana' (slices.Delete):", frutas)
 
 	// ─────────────────────────────────────────────────────────
-	// ORDENAR SLICES
+	// ORDENAR Y BUSCAR EN SLICES (paquete moderno "slices")
 	// ─────────────────────────────────────────────────────────
+	// En Go moderno (1.21+) usamos el paquete "slices" para ordenar,
+	// invertir y buscar en cualquier slice de tipos ordenables.
+	// (En código viejo vas a ver sort.Ints, sort.Strings, sort.SearchInts).
 	numeros := []int{5, 2, 8, 1, 9, 3, 7, 4, 6}
-	fmt.Println("\n=== Ordenamiento ===")
+	fmt.Println("\n=== Ordenamiento (paquete slices) ===")
 	fmt.Println("Sin ordenar:", numeros)
-	sort.Ints(numeros)
+	slices.Sort(numeros)
 	fmt.Println("Ordenado:", numeros)
 
 	palabras := []string{"banana", "apple", "cherry", "date"}
-	sort.Strings(palabras)
+	slices.Sort(palabras)
 	fmt.Println("Strings ordenados:", palabras)
 
-	// Orden descendente
-	sort.Sort(sort.Reverse(sort.IntSlice(numeros)))
-	fmt.Println("Descendente:", numeros)
+	// Orden descendente (invertir el slice ya ordenado)
+	slices.Reverse(numeros)
+	fmt.Println("Descendente (slices.Reverse):", numeros)
 
 	// ─────────────────────────────────────────────────────────
-	// BÚSQUEDA EN SLICE ORDENADO
+	// BÚSQUEDA EN SLICE
 	// ─────────────────────────────────────────────────────────
-	sort.Ints(numeros)
-	idx := sort.SearchInts(numeros, 5)
-	fmt.Printf("\nBúsqueda de 5 en %v → índice: %d\n", numeros, idx)
+	fmt.Println("\n=== Búsqueda ===")
+	fmt.Println("¿Contiene 5? (slices.Contains):", slices.Contains(numeros, 5))
+
+	// Búsqueda binaria (requisito: el slice DEBE estar ordenado en forma ascendente)
+	slices.Sort(numeros)
+	idx, encontrado := slices.BinarySearch(numeros, 5)
+	fmt.Printf("BinarySearch de 5 en %v → índice: %d (encontrado: %v)\n", numeros, idx, encontrado)
 
 	// ─────────────────────────────────────────────────────────
 	// SLICES 2D (matriz)

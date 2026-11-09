@@ -6,16 +6,11 @@ import (
 )
 
 // =========================================================
-// PUNTEROS COMO ÚLTIMO RECURSO
+// ELEGIR ENTRE VALOR Y PUNTERO SEGÚN EL COMPORTAMIENTO
 // =========================================================
-// Go tiene una filosofía clara sobre los punteros:
-//
-//   "Usá punteros solo cuando los necesitás."
-//
-// En otros lenguajes (C, C++) los punteros son omnipresentes
-// porque son la única forma de evitar copias costosas.
-// En Go, hay muchos casos donde pasar por valor es correcto,
-// más legible, más seguro, y a veces hasta más rápido.
+// No hay una regla que prohíba punteros o los vuelva automáticamente mejores.
+// Primero preguntá qué querés compartir o modificar. Después elegí la interfaz.
+// El costo depende del tipo, el compilador y el uso: se mide, no se adivina.
 //
 // CUÁNDO SÍ usar punteros:
 //   1. Necesitás modificar el original desde una función
@@ -61,9 +56,11 @@ func distanciaPuntero(p *Punto, otro *Punto) float64 {
 // CASO 2: SLICES Y MAPS — descriptores con datos compartidos
 // ─────────────────────────────────────────────────────────
 
-// MAL: *[]int es raramente necesario
+// Alternativa válida: acceder al descriptor del slice del llamador.
+// No es un error del lenguaje; retornar el slice suele hacer más visible
+// que cambió su longitud. Compará ambas opciones antes de elegir una.
 func agregarMAL(s *[]int, v int) {
-	*s = append(*s, v) // sintaxis fea, generalmente innecesaria
+	*s = append(*s, v) // reemplaza el descriptor al que apunta s
 }
 
 // BIEN: retornar el slice actualizado (como hace append)
@@ -74,7 +71,7 @@ func agregarBIEN(s []int, v int) []int {
 // Para modificar entradas de un map no necesitás *map: la copia del descriptor
 // permite acceder a la misma tabla.
 func registrarMAL(m *map[string]int, k string, v int) {
-	(*m)[k] = v // * innecesario, feo y confuso
+	(*m)[k] = v // no necesitamos reemplazar el map para cambiar una entrada
 }
 
 func registrarBIEN(m map[string]int, k string, v int) {
@@ -163,7 +160,7 @@ func resumenPedido(p *Pedido) string {
 
 func main() {
 	fmt.Println("╔══════════════════════════════════╗")
-	fmt.Println("║   PUNTEROS COMO ÚLTIMO RECURSO    ║")
+	fmt.Println("║     ELEGIR VALOR O PUNTERO        ║")
 	fmt.Println("╚══════════════════════════════════╝")
 
 	// ─────────────────────────────────────────────────────────

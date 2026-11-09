@@ -1,8 +1,9 @@
 package main
 
 import (
+	"cmp"
 	"fmt"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -10,16 +11,15 @@ import (
 // =========================================================
 // EJERCICIO INTEGRADOR: PROCESADOR DE TEXTO Y FICHAS
 // =========================================================
-// Acá juntamos TODO lo de la sección Strings con lo que ya
-// sabés de la biblia: maps, slices, structs, funciones,
-// múltiples retornos y manejo de errores.
+// Acá juntamos TODO lo de la sección Colecciones y Strings:
+// maps, slices, structs, funciones, múltiples retornos y manejo de errores.
 //
 // Construimos dos mini-herramientas del mundo real:
 //
 //   PARTE A: analizador de texto
 //     - contar palabras (Fields)
 //     - frecuencia de cada palabra (map + normalización)
-//     - top de palabras más usadas (sort.Slice)
+//     - top de palabras más usadas (slices.SortFunc)
 //
 //   PARTE B: parser de fichas "nombre,edad,ciudad"
 //     - partir con Split
@@ -66,12 +66,11 @@ func topPalabras(frecuencia map[string]int, n int) []string {
 
 	// 2. ordenar por frecuencia (mayor primero);
 	//    a igual frecuencia, alfabético para que sea estable
-	sort.Slice(palabras, func(i, j int) bool {
-		fi, fj := frecuencia[palabras[i]], frecuencia[palabras[j]]
-		if fi != fj {
-			return fi > fj
+	slices.SortFunc(palabras, func(a, b string) int {
+		if c := cmp.Compare(frecuencia[b], frecuencia[a]); c != 0 {
+			return c // mayor frecuencia primero
 		}
-		return palabras[i] < palabras[j]
+		return cmp.Compare(a, b) // desempate alfabético
 	})
 
 	// 3. recortar al top n (cuidando no pasarnos)
@@ -195,8 +194,8 @@ func main() {
 	fmt.Printf("\ncargadas %d de %d fichas\n", len(personas), len(lineas))
 
 	// Broche final: ordenar las personas por nombre
-	sort.Slice(personas, func(i, j int) bool {
-		return personas[i].Nombre < personas[j].Nombre
+	slices.SortFunc(personas, func(a, b Persona) int {
+		return cmp.Compare(a.Nombre, b.Nombre)
 	})
 	fmt.Println("\nordenadas por nombre:")
 	for _, p := range personas {
@@ -207,11 +206,11 @@ func main() {
 	// QUÉ USAMOS DE LA BIBLIA
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== Qué usamos ===")
-	fmt.Println("  strings.Fields/Split/Trim/ToLower → Strings 06-07")
-	fmt.Println("  strconv.Atoi con error            → Strings 08")
-	fmt.Println("  []rune para capitalizar           → Strings 03-04")
-	fmt.Println("  map como contador                 → Fundamentos 17/26")
-	fmt.Println("  struct Persona                    → Fundamentos 18")
-	fmt.Println("  (valor, error) y validación       → Fundamentos 37-38")
-	fmt.Println("  sort.Slice con criterio propio    → Strings 09")
+	fmt.Println("  strings.Fields/Split/Trim/ToLower → 03_colecciones_y_strings/13_paquete_strings_transformar")
+	fmt.Println("  strconv.Atoi con error            → 03_colecciones_y_strings/14_strconv_conversiones")
+	fmt.Println("  []rune para capitalizar           → 03_colecciones_y_strings/09_indexar_e_iterar y 10_inmutabilidad")
+	fmt.Println("  map como contador                 → 03_colecciones_y_strings/04_maps y 05_iteracion_de_maps")
+	fmt.Println("  struct Persona                    → 04_structs_metodos_y_punteros/02_structs")
+	fmt.Println("  (valor, error) y validación       → 01_fundamentos/14_funciones_y_retornos y 06_interfaces_y_errores/12_patron_de_errores")
+	fmt.Println("  slices.SortFunc con criterio      → 03_colecciones_y_strings/15_comparar_y_ordenar")
 }

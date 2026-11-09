@@ -118,6 +118,7 @@ func main() {
 	r2, e2 := divisionNombrada(10, 3)
 	fmt.Printf("Normal:   %.4f, %v\n", r1, e1)
 	fmt.Printf("Nombrado: %.4f, %v\n", r2, e2)
+	fmt.Printf("Función corta sumar(3, 4): %d (acá un return directo es más claro)\n", sumar(3, 4))
 
 	_, e3 := divisionNombrada(10, 0)
 	fmt.Printf("Error nombrado: %v\n", e3)

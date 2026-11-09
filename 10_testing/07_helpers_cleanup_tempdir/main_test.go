@@ -7,7 +7,7 @@ import (
 )
 
 func leerArchivo(t *testing.T, ruta string) string {
-	t.Helper() // si falla, testing señala a quien llamó al helper
+	t.Helper() // si falla, testing señala a quien llamó al helper (línea 38), no acá
 	datos, err := os.ReadFile(ruta)
 	if err != nil {
 		t.Fatalf("ReadFile(%q): %v", ruta, err)
@@ -16,8 +16,17 @@ func leerArchivo(t *testing.T, ruta string) string {
 }
 
 func TestGuardarTexto(t *testing.T) {
-	directorio := t.TempDir()       // testing lo borra aunque el test falle
-	t.Setenv("GOCITO_MODO", "test") // restaura el entorno automáticamente
+	directorio := t.TempDir()        // testing lo borra aunque el test falle
+	t.Setenv("GOCITO_MODO", "test")  // restaura el entorno automáticamente
+	ctx := t.Context()               // Go 1.24+: se cancela solo al terminar el test
+	dirArtefactos := t.ArtifactDir() // Go 1.26: carpeta de artefactos para este test
+
+	if ctx.Err() != nil {
+		t.Fatal("el contexto del test debería estar activo mientras corre")
+	}
+	if dirArtefactos == "" {
+		t.Fatal("ArtifactDir debería devolver una ruta válida")
+	}
 
 	limpiezaEjecutada := false
 	t.Cleanup(func() { limpiezaEjecutada = true })

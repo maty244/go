@@ -139,36 +139,43 @@ func main() {
 	// OPERADORES DE BITS (Bitwise)
 	// ─────────────────────────────────────────────────────────
 	// Trabajan a nivel de bits (0s y 1s). Muy usados en:
-	// - Sistemas de permisos
-	// - Optimización de código
-	// - Protocolos de red
-	// - Flags de configuración
-
-	c, d := 0b1010, 0b1100 // 10 y 12 en binario (prefijo 0b)
+	// - Sistemas de permisos y flags de configuración
+	// - Protocolos de red y archivos binarios
+	// - Criptografía y compresión
+	//
+	// Usamos uint8 (8 bits sin signo) para ver claramente los bits sin signo negativo:
+	var c, d uint8 = 0b00001010, 0b00001100 // 10 y 12 en binario (prefijo 0b)
 	fmt.Println("\n=== Operadores de Bits ===")
-	fmt.Printf("a = %04b (%d)\n", c, c)
-	fmt.Printf("b = %04b (%d)\n", d, d)
-	fmt.Printf("a &  b = %04b (%d)  AND bit a bit\n", c&d, c&d)
-	fmt.Printf("a |  b = %04b (%d)  OR bit a bit\n", c|d, c|d)
-	fmt.Printf("a ^  b = %04b (%d)  XOR bit a bit\n", c^d, c^d)
-	fmt.Printf("^a     = %b  NOT (complemento a 1)\n", ^c)
-	fmt.Printf("a << 1 = %04b (%d)  shift left (multiplica por 2)\n", c<<1, c<<1)
-	fmt.Printf("a >> 1 = %04b (%d)  shift right (divide por 2)\n", c>>1, c>>1)
+	fmt.Printf("a      = %08b (%2d)\n", c, c)
+	fmt.Printf("b      = %08b (%2d)\n", d, d)
+	fmt.Printf("a &  b = %08b (%2d)  AND bit a bit (1 si ambos son 1)\n", c&d, c&d)
+	fmt.Printf("a |  b = %08b (%2d)  OR bit a bit  (1 si al menos uno es 1)\n", c|d, c|d)
+	fmt.Printf("a ^  b = %08b (%2d)  XOR bit a bit (1 si son distintos)\n", c^d, c^d)
+	fmt.Printf("a &^ b = %08b (%2d)  AND NOT / bit clear (apaga en 'a' los bits que estén en 'b')\n", c&^d, c&^d)
+	fmt.Printf("^a     = %08b (%3d) NOT unario (invierte los 8 bits de uint8; en int con signo ^x vale -(x+1))\n", ^c, ^c)
+	fmt.Printf("a << 1 = %08b (%2d)  shift left (desplaza a la izq: multiplica por 2)\n", c<<1, c<<1)
+	fmt.Printf("a >> 1 = %08b (%2d)  shift right (desplaza a la der: divide por 2)\n", c>>1, c>>1)
 
-	// Aplicación real: sistema de permisos con bits
+	// Aplicación real: sistema de permisos con bits (bitmask)
 	// Cada bit representa un permiso diferente
 	const (
-		LEER     = 1 << 0 // bit 0 → 001 → 1
-		ESCRIBIR = 1 << 1 // bit 1 → 010 → 2
-		EJECUTAR = 1 << 2 // bit 2 → 100 → 4
+		PermisoLeer     = 1 << 0 // bit 0 → 001 → 1
+		PermisoEscribir = 1 << 1 // bit 1 → 010 → 2
+		PermisoEjecutar = 1 << 2 // bit 2 → 100 → 4
 	)
 
-	permisoUsuario := LEER | ESCRIBIR // 001 | 010 = 011 = 3
+	// 1. Activar permisos con OR (|)
+	permisoUsuario := PermisoLeer | PermisoEscribir // 001 | 010 = 011 (3)
 	fmt.Println("\n=== Sistema de permisos con bits ===")
-	fmt.Printf("permisos = %b (%d)\n", permisoUsuario, permisoUsuario)
-	fmt.Printf("¿Puede leer?    %v\n", permisoUsuario&LEER != 0)
-	fmt.Printf("¿Puede escribir? %v\n", permisoUsuario&ESCRIBIR != 0)
-	fmt.Printf("¿Puede ejecutar? %v\n", permisoUsuario&EJECUTAR != 0)
+	fmt.Printf("permisos iniciales = %03b (%d)\n", permisoUsuario, permisoUsuario)
+	// 2. Consultar permisos con AND (&)
+	fmt.Printf("¿Puede leer?     %v\n", permisoUsuario&PermisoLeer != 0)
+	fmt.Printf("¿Puede escribir? %v\n", permisoUsuario&PermisoEscribir != 0)
+	fmt.Printf("¿Puede ejecutar? %v\n", permisoUsuario&PermisoEjecutar != 0)
+	// 3. Quitar un permiso con AND NOT (&^, exclusivo de Go)
+	permisoUsuario &^= PermisoEscribir // apaga el bit de escritura
+	fmt.Printf("Después de quitar escritura (&^=): %03b → ¿Puede escribir? %v\n",
+		permisoUsuario, permisoUsuario&PermisoEscribir != 0)
 
 	// ─────────────────────────────────────────────────────────
 	// PRECEDENCIA DE OPERADORES

@@ -74,8 +74,11 @@ func imprimirLog(nivel string, mensajes ...string) {
 	}
 }
 
-// max retorna el mayor de varios números
-func max(nums ...float64) float64 {
+// maximo retorna el mayor de varios números.
+// Nota (Go 1.21+): Go trae la función predeclarada max(a, b, ...), pero
+// el built-in max exige al menos 1 argumento fijo y NO acepta expandir un slice (slice...).
+// Para un slice existen slices.Max(s) o una función variádica propia como esta:
+func maximo(nums ...float64) float64 {
 	if len(nums) == 0 {
 		return 0
 	}
@@ -106,6 +109,9 @@ func main() {
 	// EXPANDIR UN SLICE CON ...
 	// ─────────────────────────────────────────────────────────
 	// Si ya tenés un slice, podés expandirlo como argumentos con ...
+	// ¡OJO! Cuando pasás un slice con `slice...`, Go NO copia el array subyacente:
+	// el slice variádico dentro de la función comparte la misma memoria que `numeros`.
+	// Si la función modifica `nums[0]`, también modifica `numeros[0]` del llamador.
 	fmt.Println("\n=== Expandir slice con ... ===")
 	numeros := []int{10, 20, 30, 40, 50}
 	fmt.Println("slice:", numeros)
@@ -142,9 +148,11 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	// MÁXIMO DE VARIOS NÚMEROS
 	// ─────────────────────────────────────────────────────────
-	fmt.Println("\n=== Máximo variádico ===")
-	fmt.Printf("max(3, 1, 4, 1, 5, 9, 2, 6): %.0f\n",
-		max(3, 1, 4, 1, 5, 9, 2, 6))
+	fmt.Println("\n=== Máximo variádico vs built-in max ===")
+	fmt.Printf("maximo(3, 1, 4, 1, 5, 9, 2, 6): %.0f\n",
+		maximo(3, 1, 4, 1, 5, 9, 2, 6))
+	fmt.Printf("built-in max(3.0, 9.0, 2.0):    %.0f\n",
+		max(3.0, 9.0, 2.0))
 
 	// ─────────────────────────────────────────────────────────
 	// LOG CON VARIÁDICO
@@ -167,7 +175,7 @@ func main() {
 	fmt.Println("func f(args ...int)         → variádico, recibe 0 o más ints")
 	fmt.Println("func f(s string, a ...int)  → parámetros normales + variádico al final")
 	fmt.Println("f(1, 2, 3)                  → llamar con argumentos individuales")
-	fmt.Println("f(slice...)                 → expandir un slice como argumentos")
+	fmt.Println("f(slice...)                 → expandir un slice (comparte array subyacente)")
 	fmt.Println("Dentro de la función: args es un []int (un slice normal)")
 }
 

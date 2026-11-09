@@ -37,7 +37,9 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	// DIFERENCIA CRÍTICA: := vs =
 	// ─────────────────────────────────────────────────────────
-	// := siempre CREA una nueva variable (puede sombrear)
+	// := declara al menos una variable nueva; en el MISMO bloque puede
+	// reasignar otras ya existentes: valor, nuevo := 20, true.
+	// En un bloque interior, declarar valor con := sí sombrea a la exterior.
 	// =  siempre MODIFICA la variable existente (no hace shadowing)
 
 	valor := 10
@@ -55,6 +57,17 @@ func main() {
 		fmt.Println("dentro con =:", valor) // 99
 	}
 	fmt.Println("valor después de =:", valor) // 99 (modificado!)
+
+	// CASO SUTIL: := con una variable existente y una nueva
+	// 1. En el MISMO bloque: "valor" se REASIGNA y "nuevo" se DECLARA:
+	valor, nuevo := 20, true
+	fmt.Printf("en el mismo bloque (valor, nuevo := 20, true) → valor=%d, nuevo=%v\n", valor, nuevo)
+	// 2. En un bloque INTERIOR: AMBAS se declaran como nuevas (valor sombrea a la exterior):
+	{
+		valor, otroNuevo := 500, false
+		fmt.Printf("en bloque interior (valor, otroNuevo := 500, false) → valor interno=%d, otroNuevo=%v\n", valor, otroNuevo)
+	}
+	fmt.Println("valor exterior después del bloque interior:", valor) // sigue siendo 20!
 
 	// ─────────────────────────────────────────────────────────
 	// SHADOWING CON VARIABLES GLOBALES
@@ -95,9 +108,9 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	// SHADOWING CON err (MUY FRECUENTE EN GO)
 	// ─────────────────────────────────────────────────────────
-	// El patrón "val, err := fn()" crea un shadowing de err
-	// en cada llamada. Esto es intencional y es el estilo de Go.
-	// Pero puede generar confusión si no se entiende bien.
+	// "val, err := fn()" puede reutilizar err en el mismo bloque si val es
+	// nuevo. En un bloque interior puede declarar otra err y sombrear a la
+	// exterior. El scope, no el nombre por sí solo, decide qué variable es.
 
 	fmt.Println("\n=== Shadowing con err ===")
 
@@ -129,9 +142,9 @@ func main() {
 	numeros := []int{1, 2, 3}
 
 	for _, n := range numeros {
-		// "n" en cada iteración es la misma variable (reutilizada)
-		// No es shadowing en sí, pero el comportamiento puede sorprender
-		// cuando creás goroutines (hilos) dentro del for.
+		// Desde Go 1.22, n DECLARADA con := es nueva en cada iteración.
+		// Con una n declarada afuera y "for _, n = range numeros", se
+		// reasigna la misma variable. Ver 05_funciones_y_closures/10_trampa_closure_en_for.
 		fmt.Println("n:", n)
 	}
 
@@ -158,7 +171,7 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== Cómo detectar sombras ===")
 	fmt.Println("Herramientas para detectar shadowing no intencional:")
-	fmt.Println("  go vet ./...                    → análisis básico")
+	fmt.Println("  go vet ./...                    → análisis básico; no detecta toda sombra")
 	fmt.Println("  staticcheck ./...               → análisis estático avanzado")
 	fmt.Println("  shadow (golang.org/x/tools)     → detecta shadowing específicamente")
 	fmt.Println()

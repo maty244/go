@@ -12,6 +12,9 @@ func TestCalcularTotal(t *testing.T) {
 		t.Fatalf("total=%d err=%v", total, err)
 	}
 	if _, err := CalcularTotal(250, -1); !errors.Is(err, ErrValorNegativo) {
-		t.Fatalf("error negativo=%v", err)
+		t.Fatalf("error cantidad negativa=%v", err)
+	}
+	if _, err := CalcularTotal(-250, 3); !errors.Is(err, ErrValorNegativo) {
+		t.Fatalf("error precio negativo=%v", err)
 	}
 }

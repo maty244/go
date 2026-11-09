@@ -18,7 +18,9 @@ import "fmt"
 // ─────────────────────────────────────────────────────────
 // TIPOS DE FUNCIÓN
 // ─────────────────────────────────────────────────────────
-// Podemos crear un alias de tipo para un tipo de función.
+// Podemos definir un tipo propio (o un alias con =) para una firma de función.
+// El zero value de cualquier variable de tipo función es nil (y solo se puede
+// comparar con == nil o != nil; dos funciones no se pueden comparar entre sí).
 type OperacionPrecio func(float64) float64
 
 type Producto struct {

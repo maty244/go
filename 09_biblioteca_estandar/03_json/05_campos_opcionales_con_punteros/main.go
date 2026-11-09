@@ -68,6 +68,20 @@ func main() {
 	fmt.Printf("Después de act2 (stock=0):     %+v\n", producto)
 
 	// ─────────────────────────────────────────────────────────
+	// CONSTRUIR UN PATCH DESDE GO CON new(valor) (Go 1.26)
+	// ─────────────────────────────────────────────────────────
+	// Como viste en 04_structs_metodos_y_punteros/09_valores_opcionales_y_new,
+	// en Go 1.26 podés usar new(expresion) para armar un struct con
+	// punteros opcionales en una sola línea, sin variables auxiliares:
+	fmt.Println("\n=== Armar un PATCH desde Go con new(valor) (Go 1.26) ===")
+
+	patchDesdeGo := ActualizarProducto{
+		Stock: new(0), // queremos enviar explícitamente {"stock":0}
+	}
+	bytesPatch, _ := json.Marshal(patchDesdeGo)
+	fmt.Println("JSON generado:", string(bytesPatch))
+
+	// ─────────────────────────────────────────────────────────
 	// SIN PUNTEROS, ESTO SERÍA IMPOSIBLE DE DISTINGUIR
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== MAL: con int en vez de *int ===")
@@ -81,6 +95,7 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== RESUMEN ===")
 	fmt.Println("  Campo *T + omitempty  → nil = 'no vino', valor = 'vino con ese dato'")
+	fmt.Println("  new(valor) (Go 1.26)  → crea un *T inline para armar el struct sin var extra")
 	fmt.Println("  Uso típico            → PATCH/actualizaciones parciales en APIs")
 	fmt.Println("  Antes de aplicar      → chequear != nil, después usar *puntero")
 	fmt.Println("  Sin esto              → no se puede distinguir 0/\"\"/false de 'no vino'")

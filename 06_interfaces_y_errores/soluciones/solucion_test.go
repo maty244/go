@@ -2,11 +2,13 @@ package solucion
 
 import (
 	"errors"
+	"strings"
 	"testing"
 )
 
 func TestCargar(t *testing.T) {
-	if err := Cargar(1); !errors.Is(err, ErrNoEncontrado) {
+	err := Cargar(42)
+	if !errors.Is(err, ErrNoEncontrado) || !strings.Contains(err.Error(), "42") {
 		t.Fatalf("error=%v", err)
 	}
 }

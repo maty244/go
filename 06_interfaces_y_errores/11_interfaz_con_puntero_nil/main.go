@@ -41,6 +41,15 @@ func (e *ErrorPersonalizado) Error() string {
 	return fmt.Sprintf("error %d: %s", e.Codigo, e.Mensaje)
 }
 
+// En Go, llamar un método con receptor puntero nil NO da panic por sí solo;
+// solo da panic si el método desreferencia el puntero sin validar `e == nil`.
+func (e *ErrorPersonalizado) DescribirSeguro() string {
+	if e == nil {
+		return "receptor *ErrorPersonalizado es nil (sin panic)"
+	}
+	return e.Error()
+}
+
 // ─────────────────────────────────────────────────────────
 // EL BUG CLÁSICO: retornar (*T)(nil) como error
 // ─────────────────────────────────────────────────────────
@@ -177,6 +186,10 @@ func main() {
 	fmt.Println("  Internamente:")
 	inspeccionarInterfaz("iNil ", iNil)
 	inspeccionarInterfaz("iTrap", iTrap)
+	// Nota clave: en Go, llamar un método sobre un receptor puntero nil
+	// NO produce panic automáticamente al invocar el método: solo paniquea si el cuerpo
+	// intenta desreferenciar el puntero nil (ej. leer e.Codigo) sin antes chequear `if e == nil`.
+	fmt.Printf("  pNil.DescribirSeguro(): %s\n", pNil.DescribirSeguro())
 
 	// ─────────────────────────────────────────────────────────
 	// EFECTO EN FUNCIONES QUE RETORNAN error

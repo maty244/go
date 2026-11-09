@@ -12,7 +12,7 @@ import (
 // errores que envuelve) el mismo que objetivo?"
 //
 // Para errores centinela SIN wrapping, esto es equivalente a
-// "err == objetivo". La diferencia aparece con wrapping (tema 02):
+// "err == objetivo". La diferencia aparece con wrapping (14_wrapping_con_porcentaje_w):
 // errors.Is SIGUE buscando adentro de las capas, mientras que ==
 // solo compara el valor de más afuera.
 //

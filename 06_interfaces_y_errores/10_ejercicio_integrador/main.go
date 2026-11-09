@@ -201,9 +201,8 @@ func main() {
 	}
 
 	if err := kiosco.comprar("Gaseosa", 5, mp); err != nil {
-		// Type assertion para reaccionar distinto según el error
-		var errStock *ErrorStockInsuficiente
-		if errors.As(err, &errStock) {
+		// Extraer el tipo concreto con errors.AsType (Go 1.26+) para reaccionar distinto
+		if errStock, ok := errors.AsType[*ErrorStockInsuficiente](err); ok {
 			fmt.Printf("  ERROR (stock): faltan %d unidades\n", errStock.Pedido-errStock.Stock)
 		} else {
 			fmt.Println("  ERROR:", err)
@@ -217,7 +216,7 @@ func main() {
 	kiosco.mostrarHistorial()
 
 	// ─────────────────────────────────────────────────────────
-	// RESUMEN DE TODO LO VISTO EN 06_interfaces_y_errores/
+	// RESUMEN DE LA PRIMERA PARTE (Interfaces 01 a 10)
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== RESUMEN: qué interfaz resolvió cada problema ===")
 	fmt.Println("  MetodoPago    → polimorfismo: Efectivo y MercadoPago, un solo comprar()")

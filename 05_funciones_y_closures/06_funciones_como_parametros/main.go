@@ -146,15 +146,15 @@ func main() {
 	})
 	mostrarProductos("Catálogo con IVA", conIVA[:3]) // mostramos solo 3
 
-	// Normalizar nombres (todo mayúsculas)
+	// Normalizar nombres (todo mayúsculas) y recorrer con forEach
 	normalizados := transformar(catalogo, func(p Producto) Producto {
 		p.Nombre = strings.ToUpper(p.Nombre)
 		return p
 	})
-	fmt.Println("\n  Nombres normalizados:")
-	for _, p := range normalizados {
+	fmt.Println("\n  Nombres normalizados (usando forEach):")
+	forEach(normalizados, func(p Producto) {
 		fmt.Printf("    %s\n", p.Nombre)
-	}
+	})
 
 	// ─────────────────────────────────────────────────────────
 	// REDUCIR

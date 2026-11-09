@@ -72,12 +72,17 @@ func main() {
 	// COMPARAR DOS time.Time
 	// ─────────────────────────────────────────────────────────
 	// NUNCA uses == para comparar time.Time con la intención de
-	// "son la misma fecha/hora" de forma confiable (por temas de
-	// zona horaria internos). Usá los métodos Before/After/Equal.
+	// "son el mismo instante" (== compara también el puntero de
+	// zona horaria y la lectura del reloj monotónico interno).
+	// Usá siempre los métodos Before, After y Equal.
 
 	fmt.Println("\n=== Comparar fechas ===")
 	fmt.Println("¿Ahora es antes de Navidad?", ahora.Before(navidad))
 	fmt.Println("¿Ahora es después de Navidad?", ahora.After(navidad))
+
+	zonaArgentina := time.FixedZone("ART", -3*3600)
+	navidadEnArgentina := navidad.In(zonaArgentina)
+	fmt.Println("¿Mismo instante en otra zona con Equal?", navidad.Equal(navidadEnArgentina))
 
 	// ─────────────────────────────────────────────────────────
 	// RESUMEN

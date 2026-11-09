@@ -33,20 +33,20 @@ func TestAplicarDescuentoSinDescuento(t *testing.T) {
 }
 
 // ─────────────────────────────────────────────────────────
-// PARA LLEGAR A 100%, DESCOMENTÁ ESTO
+// PARA LLEGAR A 100% EN AplicarDescuento, DESCOMENTÁ ESTO
 // ─────────────────────────────────────────────────────────
 // func TestAplicarDescuentoFrecuente(t *testing.T) {
 // 	resultado := AplicarDescuento(1000, "frecuente")
-// 	esperado := 900.0
+// 	esperado := Dinero(900)
 // 	if resultado != esperado {
-// 		t.Errorf("AplicarDescuento(1000, frecuente) = %.2f; esperado %.2f", resultado, esperado)
+// 		t.Errorf("AplicarDescuento(1000, frecuente) = %d; esperado %d", resultado, esperado)
 // 	}
 // }
 //
 // func TestAplicarDescuentoEmpleado(t *testing.T) {
 // 	resultado := AplicarDescuento(1000, "empleado")
-// 	esperado := 500.0
+// 	esperado := Dinero(500)
 // 	if resultado != esperado {
-// 		t.Errorf("AplicarDescuento(1000, empleado) = %.2f; esperado %.2f", resultado, esperado)
+// 		t.Errorf("AplicarDescuento(1000, empleado) = %d; esperado %d", resultado, esperado)
 // 	}
 // }

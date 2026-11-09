@@ -52,13 +52,16 @@ func main() {
 	fmt.Println("time.TimeOnly:", ahora.Format(time.TimeOnly))
 
 	// RFC3339 es EL formato más usado en APIs (JSON, HTTP): es el
-	// que vas a ver constantemente cuando trabajes con 09_biblioteca_estandar/03_json/ y HTTP/.
+	// que vas a ver constantemente cuando trabajes con 09_biblioteca_estandar/03_json/ y 13_http_rest/.
 
 	// ─────────────────────────────────────────────────────────
 	// Parse: texto → time.Time (el camino inverso)
 	// ─────────────────────────────────────────────────────────
 	// Le pasás el MISMO layout que tiene el texto que estás
 	// leyendo, y Go lo interpreta según esa forma.
+	// Nota: si el texto no incluye zona horaria, time.Parse asume
+	// UTC; si querés parsearlo en una zona específica (ej. time.Local),
+	// existe time.ParseInLocation(layout, texto, loc).
 
 	fmt.Println("\n=== Parse: texto → time.Time ===")
 

@@ -5,7 +5,7 @@ import "fmt"
 // =========================================================
 // CLOSURES CON ESTADO: EL PATRÓN "CONTADOR"
 // =========================================================
-// Profundizamos el ejemplo del tema 02: un closure puede actuar
+// Profundizamos el ejemplo de 08_que_es_un_closure: un closure puede actuar
 // como un objeto con estado privado, sin necesidad de structs
 // ni de exponer la variable interna. Esto es un patrón MUY usado
 // en Go para encapsular datos sin escribir un struct completo.

@@ -75,8 +75,8 @@ func main() {
 	// con tildes o eñes podés romper la codificación UTF-8.
 
 	fmt.Println("\n=== Vía []byte (solo ASCII) ===")
-	código := "abc-123"
-	bs := []byte(código)
+	codigo := "abc-123"
+	bs := []byte(codigo)
 	bs[3] = '_'
 	fmt.Println(string(bs)) // abc_123
 

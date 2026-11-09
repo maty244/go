@@ -9,9 +9,12 @@ func main() {
 	// =========================================================
 	// SWITCH EN BLANCO (Blank Switch / Switch sin expresión)
 	// =========================================================
-	// Un switch "en blanco" es un switch SIN expresión.
-	// En vez de comparar un valor contra los cases,
-	// cada case tiene su PROPIA condición booleana.
+	// Un switch "en blanco" es un switch SIN expresión después de la palabra switch.
+	// Internamente, para el compilador de Go, escribir:
+	//   switch { ... }
+	// es EXACTAMENTE lo mismo que escribir:
+	//   switch true { ... }
+	// Por eso cada case tiene su PROPIA condición booleana (que se compara con true).
 	//
 	// Sintaxis:
 	//   switch {
@@ -21,11 +24,11 @@ func main() {
 	//       ...
 	//   }
 	//
-	// Es EXACTAMENTE equivalente a una cadena de if/else if/else,
+	// Es equivalente a una cadena de if/else if/else,
 	// pero más limpio y legible cuando hay muchas ramas.
 	//
-	// Se ejecuta el PRIMER case cuya condición sea true.
-	// Si ninguno es true, se ejecuta default (si existe).
+	// Se evalúa de arriba hacia abajo y ejecuta el PRIMER case que dé true.
+	// Si ninguno es true, ejecuta default (si existe).
 
 	// ─────────────────────────────────────────────────────────
 	// EJEMPLO BÁSICO: comparación con if/else if
@@ -249,7 +252,7 @@ func main() {
 	fmt.Println("  ✓ Querés que el lector vea claramente que son ramas mutuamente")
 	fmt.Println("    excluyentes (solo una se ejecuta)")
 	fmt.Println()
-	fmt.Println("Usá if/else si cuando:")
+	fmt.Println("Usá if/else cuando:")
 	fmt.Println("  ✓ Solo tenés 1-2 ramas (un simple if/else alcanza)")
 	fmt.Println("  ✓ Las condiciones son muy distintas entre sí")
 	fmt.Println("  ✓ Necesitás early return dentro de las ramas")

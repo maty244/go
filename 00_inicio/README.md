@@ -1,5 +1,8 @@
 # 00 — Inicio
 
+La [práctica guiada](./PRACTICA.md) propone experimentos, resultados esperados
+y preguntas para comprobar que entendiste el comportamiento.
+
 ## Objetivo
 
 Preparar el entorno y entender la estructura mínima que el compilador necesita.

@@ -5,7 +5,12 @@ import "fmt"
 type Dinero int64 // centavos
 
 func dineroTexto(monto Dinero) string {
-	return fmt.Sprintf("$%d.%02d", monto/100, monto%100)
+	signo := ""
+	if monto < 0 {
+		signo = "-"
+		monto = -monto
+	}
+	return fmt.Sprintf("%s$%d.%02d", signo, monto/100, monto%100)
 }
 
 // =========================================================
@@ -32,11 +37,26 @@ type Transaccion struct {
 	Hacia *Cuenta // puede ser nil (en retiros)
 }
 
+func describirTransaccion(t Transaccion) string {
+	desde := "(efectivo)"
+	if t.Desde != nil {
+		desde = t.Desde.Titular
+	}
+	hacia := "(efectivo)"
+	if t.Hacia != nil {
+		hacia = t.Hacia.Titular
+	}
+	return fmt.Sprintf("  [%-13s] %9s | %s → %s", t.Tipo, dineroTexto(t.Monto), desde, hacia)
+}
+
 // ─────────────────────────────────────────────────────────
 // OPERACIONES QUE MODIFICAN → puntero
 // ─────────────────────────────────────────────────────────
 
 func depositar(c *Cuenta, monto Dinero) error {
+	// c recibe una copia del puntero. c.Saldo abrevia (*c).Saldo: se escribe
+	// en la cuenta compartida, no en un struct nuevo. Este ejemplo exige c
+	// no-nil; main obtiene las cuentas del constructor y comprueba su error.
 	if !c.Activa {
 		return fmt.Errorf("cuenta %d de %s está inactiva", c.ID, c.Titular)
 	}
@@ -64,11 +84,15 @@ func retirar(c *Cuenta, monto Dinero) error {
 
 // transferir modifica DOS cuentas → dos punteros
 func transferir(origen, destino *Cuenta, monto Dinero) error {
+	// Los parámetros identifican las mismas dos cuentas que conoce main.
+	// No se crean copias de sus saldos. Por eso cada escritura se ve afuera.
 	if err := retirar(origen, monto); err != nil {
 		return fmt.Errorf("transferencia fallida (origen): %w", err)
 	}
 	if err := depositar(destino, monto); err != nil {
-		// Si el depósito falla, revertimos el retiro
+		// Si el depósito falla, revertimos el retiro en la cuenta real.
+		// Es un ejemplo SECUENCIAL: no es una transacción atómica ni protege
+		// estas escrituras si varias goroutines usan las mismas cuentas.
 		origen.Saldo += monto
 		return fmt.Errorf("transferencia fallida (destino): %w", err)
 	}
@@ -84,6 +108,8 @@ func cerrarCuenta(c *Cuenta) {
 // ─────────────────────────────────────────────────────────
 
 func mostrarCuenta(c Cuenta) {
+	// Aquí sí se copia el struct. Asignar c.Saldo cambiaría solo esta copia.
+	// Leer una cuenta no obliga a recibir *Cuenta.
 	estado := "activa"
 	if !c.Activa {
 		estado = "INACTIVA"
@@ -122,6 +148,8 @@ func nuevaCuenta(titular string, deposito Dinero) (*Cuenta, error) {
 		Activa:  true,
 	}
 	proximoID++
+	// El puntero sigue siendo válido tras el retorno: salir de una función
+	// no invalida las variables que todavía son alcanzables desde afuera.
 	return c, nil
 }
 
@@ -208,6 +236,19 @@ func main() {
 
 	if err := depositar(cuentaCarlos, 10_000); err != nil {
 		fmt.Println("Depósito en cuenta cerrada:", err)
+	}
+
+	// ─────────────────────────────────────────────────────────
+	// REGISTRO DE TRANSACCIONES (punteros opcionales Desde/Hacia)
+	// ─────────────────────────────────────────────────────────
+	fmt.Println("\n--- Registro de transacciones (punteros opcionales nil) ---")
+	historial := []Transaccion{
+		{Tipo: "depósito", Monto: 50_000, Desde: nil, Hacia: cuentaAna},
+		{Tipo: "retiro", Monto: 20_000, Desde: cuentaCarlos, Hacia: nil},
+		{Tipo: "transferencia", Monto: 30_000, Desde: cuentaAna, Hacia: cuentaCarlos},
+	}
+	for _, tx := range historial {
+		fmt.Println(describirTransaccion(tx))
 	}
 
 	// ─────────────────────────────────────────────────────────

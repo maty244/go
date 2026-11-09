@@ -43,7 +43,8 @@ func main() {
 	// Un string es una secuencia de bytes (texto).
 	// En Go los strings son INMUTABLES: una vez creados no se modifican.
 	// Se declaran con comillas dobles "".
-	// Son UTF-8 por defecto (soportan emojis, acentos, etc.)
+	// Los literales de texto usan UTF-8; un string también puede guardar
+	// bytes arbitrarios. No garantiza que esos bytes formen texto válido.
 
 	nombre := "Matias"
 	apellido := "García"
@@ -66,18 +67,21 @@ func main() {
 	// Para UTF-8 con acentos/emojis, bytes > caracteres.
 	fmt.Println("\n=== Longitud de strings ===")
 	fmt.Printf("len(\"%s\") = %d bytes\n", nombre, len(nombre))
-	fmt.Printf("len(\"%s\") = %d bytes (la é ocupa 2 bytes en UTF-8)\n", apellido, len(apellido))
+	fmt.Printf("len(\"%s\") = %d bytes (la 'í' ocupa 2 bytes en UTF-8)\n", apellido, len(apellido))
 	fmt.Printf("Caracteres reales en \"%s\": %d\n", apellido, utf8.RuneCountInString(apellido))
 
 	// Acceder a caracteres por índice
-	// CUIDADO: el índice da un BYTE, no un caracter (rune).
-	// Para texto ASCII está bien, para UTF-8 puede sorprender.
+	// CUIDADO: el índice da un BYTE (uint8), no un carácter (rune).
+	// Para texto ASCII está bien, para UTF-8 puede cortar un carácter multibyte.
 	saludo := "Hola"
 	fmt.Println("\n=== Acceso por índice ===")
 	fmt.Printf("saludo[0] = %d (valor del byte) = '%c' (como caracter)\n", saludo[0], saludo[0])
 	fmt.Printf("saludo[1] = %d = '%c'\n", saludo[1], saludo[1])
 
-	// Substrings (slices de string)
+	// Substrings (rebanadas de string)
+	// IMPORTANTE: texto[inicio:fin] corta por posición de BYTES (inicio incluido, fin excluido).
+	// Si el texto tiene acentos o emojis (UTF-8 multibyte) y cortás en medio de un
+	// carácter, el substring resultante tendrá bytes UTF-8 incompletos.
 	texto := "Buenos Aires, Argentina"
 	ciudad := texto[0:12] // bytes 0 al 11
 	pais := texto[14:]    // desde byte 14 hasta el final
@@ -186,7 +190,7 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== Resumen ===")
 	fmt.Println("bool   → true/false, para condiciones y flags")
-	fmt.Println("string → texto inmutable, UTF-8 nativo")
+	fmt.Println("string → bytes inmutables; los literales de texto usan UTF-8")
 	fmt.Println("byte   → alias de uint8, para datos binarios y ASCII")
-	fmt.Println("rune   → alias de int32, para caracteres Unicode reales")
+	fmt.Println("rune   → alias de int32, representa un punto de código; no siempre un carácter visible")
 }

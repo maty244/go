@@ -13,12 +13,12 @@ func main() {
 	// Es una alternativa más limpia que una cadena larga de if/else if.
 	//
 	// Diferencias con switch en C, Java, JavaScript:
-	//   ✓ NO hay fallthrough automático (no necesitás break)
+	//   ✓ NO hay fallthrough automático (no necesitás break al final de cada case)
 	//   ✓ Los cases pueden tener múltiples valores: case "a", "b":
-	//   ✓ Funciona con strings, floats, cualquier tipo comparable
-	//   ✓ Los cases pueden ser expresiones, no solo literales
-	//   ✓ Existe el "switch sin expresión" (ver archivo 29)
-	//   ✓ Existe el "type switch" para verificar tipos de interfaces
+	//   ✓ Funciona con strings, floats, structs y cualquier tipo comparable
+	//   ✓ Los cases pueden ser variables o expresiones en ejecución, no solo constantes
+	//   ✓ Existe el "switch sin expresión" (ver 03_switch_sin_expresion)
+	//   ✓ Existe el "type switch" para descubrir el tipo concreto dentro de una interfaz
 
 	// ─────────────────────────────────────────────────────────
 	// SWITCH BÁSICO CON ENTERO
@@ -128,28 +128,35 @@ func main() {
 	}
 
 	// ─────────────────────────────────────────────────────────
-	// SWITCH CON EXPRESIONES EN LOS CASES
+	// SWITCH CON EXPRESIONES DINÁMICAS EN LOS CASES
 	// ─────────────────────────────────────────────────────────
-	// Los cases pueden ser expresiones que se evalúan,
-	// no solo valores literales.
-	fmt.Println("\n=== Cases con expresiones ===")
+	// A diferencia de C o Java (donde cada case debe ser una constante fija),
+	// en Go los cases pueden usar variables y cálculos evaluados de arriba a abajo:
+	fmt.Println("\n=== Cases con expresiones dinámicas ===")
 
+	numeroSecreto := 7
+	intento := 6
+
+	switch intento {
+	case numeroSecreto:
+		fmt.Println("¡Adivinaste el número exacto!")
+	case numeroSecreto - 1, numeroSecreto + 1:
+		fmt.Println("¡Muy cerca! Estás a 1 de distancia") // ← intento=6 entra aquí
+	default:
+		fmt.Println("Frío, seguí intentando")
+	}
+
+	// Y si omitís el valor tras "switch", podés poner condiciones booleanas
+	// completas en cada case ("switch en blanco", ver 03_switch_sin_expresion):
 	nota := 85
-
 	switch {
 	case nota >= 90:
-		fmt.Println("A - Excelente")
+		fmt.Println("Nota: A - Excelente")
 	case nota >= 80:
-		fmt.Println("B - Muy bueno") // ← nota=85 entra aquí
-	case nota >= 70:
-		fmt.Println("C - Bueno")
-	case nota >= 60:
-		fmt.Println("D - Aprobado")
+		fmt.Println("Nota: B - Muy bueno") // ← nota=85 entra aquí
 	default:
-		fmt.Println("F - Desaprobado")
+		fmt.Println("Nota: C o menor")
 	}
-	// Cuando el switch no tiene expresión, es el "switch en blanco"
-	// lo vemos en detalle en el próximo archivo.
 
 	// ─────────────────────────────────────────────────────────
 	// FALLTHROUGH: pasar explícitamente al siguiente case

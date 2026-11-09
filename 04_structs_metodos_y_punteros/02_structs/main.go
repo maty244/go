@@ -40,7 +40,7 @@ type Direccion struct {
 
 // Empleado tiene una Persona embebida y una Dirección anidada.
 type Empleado struct {
-	Persona   // embedding: herencia de composición
+	Persona   // embedding: composición que promueve campos/métodos; no es herencia
 	Legajo    int
 	Salario   float64
 	Cargo     string
@@ -64,7 +64,7 @@ func (p Persona) NombreCompleto() string {
 func (p Punto) Distancia(otro Punto) float64 {
 	dx := p.X - otro.X
 	dy := p.Y - otro.Y
-	return math.Sqrt(dx*dx + dy*dy)
+	return math.Hypot(dx, dy) // equivale a math.Sqrt(dx*dx + dy*dy)
 }
 
 func (p Punto) String() string {
@@ -257,7 +257,6 @@ func main() {
 	fmt.Println("X{Campo: val}                 → literal con nombres (recomendado)")
 	fmt.Println("Embedding:                    → composición en vez de herencia")
 	fmt.Println("&X{...}                       → puntero al struct")
-	_ = p3 // suprimir warning de no usado
 }
 
 func duplicarEdad(p *Persona) {

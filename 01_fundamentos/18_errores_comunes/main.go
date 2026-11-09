@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"slices"
+)
 
 // =========================================================
 // ERRORES COMUNES EN GO
@@ -83,13 +86,19 @@ func main() {
 	fmt.Println("  Bien: fmt.Scan(&n)")
 
 	// ─────────────────────────────────────────────────────────
-	// ERROR 7: Overflow silencioso
+	// ERROR 7: Overflow silencioso y truncamiento en ejecución
 	// ─────────────────────────────────────────────────────────
-	// Si un número supera el rango de su tipo, "da vuelta" silenciosamente.
+	// Si un número supera el rango de su tipo en ejecución, "da vuelta"
+	// silenciosamente. En cambio, con constantes el compilador lo frena:
+	//   desbordeConst := int8(300) // ERROR de compilación: constant 300 overflows int8
 	var maxInt8 int8 = 127
-	maxInt8++ // ahora es -128 (overflow), NO da error en runtime
-	fmt.Printf("\nERROR 7 - Overflow: int8(127)++ = %d (¡se volvió negativo!)\n", maxInt8)
-	fmt.Println("  PREVENCIÓN: elegí el tipo de dato correcto para tu rango")
+	maxInt8++ // ahora es -128 (overflow en runtime), NO da error
+	grande := 300
+	truncado := int8(grande) // 300 en binario es 1_00101100; al quedarse con 8 bits queda 00101100 = 44
+	fmt.Printf("\nERROR 7 - Overflow en runtime:\n")
+	fmt.Printf("  int8(127)++ = %d (¡se volvió negativo!)\n", maxInt8)
+	fmt.Printf("  grande := 300; int8(grande) = %d (trunca bits en runtime; int8(300) directo no compila)\n", truncado)
+	fmt.Println("  PREVENCIÓN: elegí el tipo de dato correcto y validá rangos antes de convertir")
 
 	// ─────────────────────────────────────────────────────────
 	// ERROR 8: División entera (truncamiento)
@@ -157,11 +166,11 @@ func main() {
 	// ERROR 11: String vs []byte cuando se necesita mutabilidad
 	// ─────────────────────────────────────────────────────────
 	// Los strings en Go son INMUTABLES. No podés hacer: s[0] = 'H'
-	// Si necesitás modificar caracteres, convertí a []byte primero.
+	// Si necesitás modificar caracteres, convertí a []byte (o []rune si hay UTF-8).
 
 	fmt.Println("\nERROR 11 - Strings son inmutables:")
 	s := "hola"
-	// s[0] = 'H' // ERROR: cannot assign to s[0] (strings are immutable)
+	// s[0] = 'H' // ERROR: cannot assign to s[0] (neither addressable nor a map index expression)
 
 	// SOLUCIÓN: convertir a []byte, modificar, y volver a string
 	bytes := []byte(s)
@@ -173,7 +182,7 @@ func main() {
 	// ERROR 12: Comparar structs que contienen slices/maps
 	// ─────────────────────────────────────────────────────────
 	// En Go podés comparar structs con == solo si todos sus campos
-	// son comparables. Los slices y maps NO son comparables con ==.
+	// son comparables. Los slices y maps NO son comparables con == (solo con nil).
 
 	fmt.Println("\nERROR 12 - Structs con slices no son comparables con ==:")
 
@@ -185,11 +194,12 @@ func main() {
 	p2 := Persona{"Ana", 25}
 	fmt.Printf("  p1 == p2: %v (struct sin slices: OK)\n", p1 == p2)
 
-	// Para comparar slices, usar reflect.DeepEqual o comparar manualmente
+	// Para comparar slices en Go moderno (1.21+), usá slices.Equal (o compará manualmente):
 	s1 := []int{1, 2, 3}
 	s2 := []int{1, 2, 3}
-	// s1 == s2 // ERROR de compilación
-	fmt.Printf("  Slices iguales manualmente: %v\n", slicesIguales(s1, s2))
+	// s1 == s2 // ERROR de compilación: slice can only be compared to nil
+	fmt.Printf("  Slices iguales con slices.Equal: %v\n", slices.Equal(s1, s2))
+	fmt.Printf("  Slices iguales manualmente:      %v\n", slicesIguales(s1, s2))
 
 	// ─────────────────────────────────────────────────────────
 	// RESUMEN
@@ -202,12 +212,12 @@ func main() {
 		"4. := fuera de función → usar var",
 		"5. = en lugar de == para comparar",
 		"6. Olvidar & en fmt.Scan",
-		"7. Overflow silencioso → elegir el tipo correcto",
+		"7. Overflow silencioso → elegir el tipo correcto y validar rangos",
 		"8. División entera trunca → usar floats si necesitás decimales",
 		"9. No manejar errores → siempre verificar err != nil",
 		"10. Modificar slice en iteración → crear copia",
-		"11. Intentar mutar string → convertir a []byte",
-		"12. Comparar structs con slices/maps con == → comparación manual",
+		"11. Intentar mutar string → convertir a []byte o []rune",
+		"12. Comparar slices con == → usar slices.Equal(s1, s2)",
 	}
 	for _, e := range errores {
 		fmt.Println(" ", e)

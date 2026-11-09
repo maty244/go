@@ -15,7 +15,7 @@ import (
 //   3. strings.Join     → cuando ya tenés un []string
 //   4. strings.Builder  → cuando armás un string EN UN LOOP
 //
-// ¿Por qué importa? Porque los strings son INMUTABLES (tema 04):
+// ¿Por qué importa? Porque los strings son INMUTABLES (10_inmutabilidad):
 // cada + crea un string NUEVO copiando todo lo anterior.
 // En un loop largo eso es copiar, y copiar, y copiar...
 
@@ -35,7 +35,7 @@ func main() {
 	fmt.Println(mensaje)
 
 	// OJO: + solo une strings. Para números hace falta convertir
-	// (con Sprintf acá, o strconv en el tema 08):
+	// (con Sprintf acá, o strconv en 14_strconv_conversiones):
 	// "edad: " + 25 // ❌ no compila: mismatched types
 
 	// ─────────────────────────────────────────────────────────

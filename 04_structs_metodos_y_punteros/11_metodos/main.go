@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"fmt"
 	"strings"
 )
@@ -168,23 +169,15 @@ func (c Carrito) Mostrar() {
 // ─────────────────────────────────────────────────────────
 
 // Esta es una FUNCIÓN, no un método.
-// Compara dos productos por precio.
+// Compara dos productos por precio (-1 si a < b, 0 si iguales, +1 si a > b).
 func compararPrecio(a, b Producto) int {
-	switch {
-	case a.Precio < b.Precio:
-		return -1
-	case a.Precio > b.Precio:
-		return 1
-	default:
-		return 0
-	}
+	return cmp.Compare(a.Precio, b.Precio)
 }
 
-// Buscar en catálogo: es una función, no pertenece a Producto
+// Buscar en catálogo: es una función sobre un slice, no pertenece a un solo Producto
 func buscarEnCatalogo(catalogo []Producto, nombre string) (Producto, bool) {
-	nombreLower := strings.ToLower(nombre)
 	for _, p := range catalogo {
-		if strings.ToLower(p.Nombre) == nombreLower {
+		if strings.EqualFold(p.Nombre, nombre) {
 			return p, true
 		}
 	}
@@ -260,10 +253,15 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== Función vs Método (comparación) ===")
 
-	// Función: no pertenece a ningún tipo
+	// Función: no pertenece a ningún tipo individual
 	resultado := compararPrecio(notebook, mouse)
 	if resultado > 0 {
-		fmt.Printf("Función: %s es más caro que %s\n", notebook.Nombre, mouse.Nombre)
+		fmt.Printf("Función compararPrecio: %s es más caro que %s\n", notebook.Nombre, mouse.Nombre)
+	}
+
+	catalogo := []Producto{notebook, mouse, teclado}
+	if prod, ok := buscarEnCatalogo(catalogo, "teclado"); ok {
+		fmt.Printf("Función buscarEnCatalogo: encontrado %s\n", prod)
 	}
 
 	// Método en Producto: sí pertenece al tipo

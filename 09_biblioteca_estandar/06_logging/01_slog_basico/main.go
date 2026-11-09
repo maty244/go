@@ -40,17 +40,18 @@ func main() {
 	slog.Error("pago rechazado", "pedido", 4521, "motivo", "fondos insuficientes")
 
 	// ─────────────────────────────────────────────────────────
-	// PARES CLAVE-VALOR: LA PARTE "ESTRUCTURADA"
+	// PARES CLAVE-VALOR (O slog.Attr): LA PARTE "ESTRUCTURADA"
 	// ─────────────────────────────────────────────────────────
 	// Después del mensaje, pasás pares "clave", valor, "clave",
-	// valor... Cada par se muestra (y se puede buscar/filtrar)
-	// como un campo separado, no mezclado en el texto.
+	// valor... (o helpers tipados como slog.String("nombre", "Mouse"),
+	// slog.Int("cantidad", 3) para evitar olvidarte un valor).
+	// Cada par queda como un campo separado, no mezclado en el texto.
 
 	slog.Info("producto vendido",
 		"nombre", "Mouse",
-		"cantidad", 3,
-		"precio", 8500.0,
-		"total", 25500.0,
+		slog.Int("cantidad", 3),
+		slog.Float64("precio", 8500.0),
+		slog.Float64("total", 25500.0),
 	)
 
 	// ─────────────────────────────────────────────────────────

@@ -18,16 +18,18 @@ func main() {
 	fmt.Println(x, y)
 
 	// ─────────────────────────────────────────────────────────
-	// INTERCAMBIO DE VALORES (swap)
+	// INTERCAMBIO DE VALORES (swap) Y EVALUACIÓN EN DOS FASES
 	// ─────────────────────────────────────────────────────────
-	// Go permite intercambiar valores sin variable temporal,
-	// algo que en otros lenguajes requiere una variable auxiliar.
+	// Go permite intercambiar valores en una sola línea sin variable temporal.
+	// ¿Por qué funciona? Porque la asignación múltiple en Go ocurre en 2 FASES:
+	//   Fase 1: Se evalúan TODAS las expresiones de la derecha (b y a) con sus valores actuales.
+	//   Fase 2: Se asignan esos valores obtenidos a las variables de la izquierda.
 	fmt.Println("\n=== Swap de valores ===")
 	fmt.Printf("Antes: a=%d, b=%d\n", a, b)
-	a, b = b, a // intercambio en una línea
+	a, b = b, a // Fase 1: lee (20, 10) → Fase 2: asigna a=20, b=10
 	fmt.Printf("Después: a=%d, b=%d\n", a, b)
 
-	// En otros lenguajes necesitarías:
+	// En otros lenguajes sin asignación paralela necesitarías:
 	// temp := a; a = b; b = temp
 
 	// ─────────────────────────────────────────────────────────
@@ -136,8 +138,11 @@ func main() {
 	fmt.Printf("¿Es fin de semana? %v\n", hoy == Domingo || hoy == Sabado)
 
 	// ─────────────────────────────────────────────────────────
-	// DESESTRUCTURACIÓN DE STRUCTS (patrón común)
+	// EXTRAER CAMPOS DE UN STRUCT EN UNA LÍNEA
 	// ─────────────────────────────────────────────────────────
+	// Nota: Go NO tiene sintaxis de desestructuración automática de objetos
+	// (como `const {x, y} = punto` en JavaScript), pero sí podés asignar
+	// múltiples campos o cálculos en una sola línea usando asignación múltiple:
 	type Coordenada struct {
 		X, Y float64
 	}
@@ -145,9 +150,7 @@ func main() {
 	c1 := Coordenada{3.0, 4.0}
 	c2 := Coordenada{6.0, 8.0}
 
-	// Asignamos múltiples campos en una expresión
-	distX := c2.X - c1.X
-	distY := c2.Y - c1.Y
+	distX, distY := c2.X-c1.X, c2.Y-c1.Y
 	fmt.Printf("\n=== Coordenadas ===\n")
 	fmt.Printf("Punto 1: (%.1f, %.1f)\n", c1.X, c1.Y)
 	fmt.Printf("Punto 2: (%.1f, %.1f)\n", c2.X, c2.Y)

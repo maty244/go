@@ -118,7 +118,7 @@ func main() {
 	fmt.Println("\n=== RESUMEN ===")
 	fmt.Println("  s[i]            → BYTE (peligroso con tildes/eñes)")
 	fmt.Println("  s[a:b]          → sub-string por BYTES (ídem)")
-	fmt.Println("  for range s     → letra por letra (decodifica UTF-8)")
+	fmt.Println("  for range s     → rune por rune (decodifica UTF-8; no separa grafemas)")
 	fmt.Println("  []rune(s)[n]    → letra N de verdad")
 	fmt.Println("  Regla: para recorrer texto, usá for range.")
 }

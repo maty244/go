@@ -1,9 +1,6 @@
 package main
 
-import (
-	"fmt"
-	"math/rand"
-)
+import "fmt"
 
 func main() {
 	// =========================================================
@@ -73,7 +70,7 @@ func main() {
 	for len(cola) > 0 {
 		// Tomamos la primera tarea
 		tarea := cola[0]
-		cola = cola[1:] // eliminamos la primera
+		cola = cola[1:] // avanzamos el slice eliminando la primera
 
 		fmt.Printf("Procesando: %s (quedan %d en cola)\n", tarea, len(cola))
 	}
@@ -110,9 +107,8 @@ func main() {
 	intentos := 0
 	exito := false
 
-	// Simulamos una operación que puede fallar aleatoriamente
-	rand.New(rand.NewSource(42)) // seed fijo para reproducibilidad
-
+	// Simulamos una operación externa que falla en los primeros 2 intentos
+	// y recién responde con éxito en el 3° intento:
 	for intentos < maxIntentos && !exito {
 		intentos++
 		if operacionFallida(intentos) {
@@ -133,7 +129,7 @@ func main() {
 	// CASO 4: Algoritmo de aproximación (convergencia)
 	// ─────────────────────────────────────────────────────────
 	// Método de Newton-Raphson para calcular raíz cuadrada de 2.
-	// Iteramos hasta que la aproximación sea suficientemente precisa.
+	// Iteramos MIENTRAS el error (|aprox² - 2|) sea mayor a la precisión deseada.
 
 	fmt.Println("\n=== Aproximación: raíz cuadrada de 2 ===")
 
@@ -141,16 +137,10 @@ func main() {
 	precision := 0.000001
 	iteracion := 0
 
-	for {
-		mejora := (aproximacion + 2.0/aproximacion) / 2.0
+	for abs(aproximacion*aproximacion-2.0) > precision {
+		aproximacion = (aproximacion + 2.0/aproximacion) / 2.0
 		iteracion++
-		fmt.Printf("  iter %d: %.10f\n", iteracion, mejora)
-
-		if abs(mejora-aproximacion) < precision {
-			aproximacion = mejora
-			break
-		}
-		aproximacion = mejora
+		fmt.Printf("  iter %d: %.10f\n", iteracion, aproximacion)
 	}
 
 	fmt.Printf("√2 ≈ %.10f (en %d iteraciones)\n", aproximacion, iteracion)

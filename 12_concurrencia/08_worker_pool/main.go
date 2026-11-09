@@ -7,7 +7,7 @@ import (
 )
 
 // =========================================================
-// WORKER POOL: UN NÚMERO FIJO DE GOROUTINES PROCESANDO TRABAJO
+// WORKER POOL, FAN-OUT, FAN-IN Y PIPELINES
 // =========================================================
 // Lanzar una goroutine por tarea (como en temas anteriores) está
 // bien para pocas tareas. Pero si tenés 100.000 tareas, lanzar
@@ -16,11 +16,22 @@ import (
 // resuelve esto: un número FIJO de goroutines ("workers") que
 // van tomando tareas de un channel compartido, de a una por vez.
 //
+// Este ejemplo reúne los 3 patrones clásicos de concurrencia en Go:
+//   - FAN-OUT (abrir en abanico): varias goroutines (los N workers)
+//     leen de un mismo channel de entrada para repartirse el trabajo.
+//   - FAN-IN (unificar en un embudo): las salidas de esas N goroutines
+//     convergen en un único channel `resultados`, que un coordinador
+//     cierra después de `wg.Wait()`.
+//   - PIPELINE (tubería por etapas): una función que recibe un flujo
+//     (slice o `<-chan A`), procesa en una goroutine y devuelve un
+//     `<-chan B` listo para que la siguiente etapa lo consuma a medida
+//     que sale (como `procesarTrabajos` acá abajo o `Cuadrados` en `retos/`).
+//
 // Piezas del patrón:
 //   1. Un channel de "trabajos" (jobs) de entrada
-//   2. N goroutines "worker" que reciben de ese channel y trabajan
-//   3. Un channel de "resultados" de salida (opcional)
-//   4. sync.WaitGroup para saber cuándo todos los workers terminaron
+//   2. N goroutines "worker" que reciben de ese channel y trabajan (Fan-Out)
+//   3. Un channel de "resultados" de salida donde todas escriben (Fan-In)
+//   4. sync.WaitGroup para saber cuándo todos los workers terminaron y cerrar la salida
 
 type Trabajo struct {
 	ID       int
@@ -45,13 +56,14 @@ func worker(id int, trabajos <-chan Trabajo, resultados chan<- Resultado) {
 	}
 }
 
-func main() {
-	fmt.Println("=== Worker pool: 3 workers procesando 8 trabajos ===")
-
+// procesarTrabajos entrega resultados mientras se producen. El consumidor
+// debe recorrer toda la salida; la versión cancelable se estudia en 09 y retos/.
+// No modificamos entrada y el llamador no debe modificarla mientras se procesa.
+func procesarTrabajos(entrada []Trabajo) <-chan Resultado {
 	const cantidadWorkers = 3
 
-	trabajos := make(chan Trabajo, 8)
-	resultados := make(chan Resultado, 8)
+	trabajos := make(chan Trabajo, cantidadWorkers)
+	resultados := make(chan Resultado)
 
 	var wg sync.WaitGroup
 
@@ -61,12 +73,15 @@ func main() {
 		wg.Go(func() { worker(w, trabajos, resultados) })
 	}
 
-	// Cargamos los trabajos en el channel
-	productos := []string{"Alfajor", "Gaseosa", "Notebook", "Mouse", "Teclado", "Monitor", "Auriculares", "Cargador"}
-	for i, producto := range productos {
-		trabajos <- Trabajo{ID: i + 1, Producto: producto}
-	}
-	close(trabajos) // avisamos: no hay más trabajos (los workers van a terminar su range)
+	// Producir en otra goroutine permite al llamador consumir resultados YA.
+	// Si enviáramos todo antes de retornar, una cola llena podría esperar a
+	// workers bloqueados al enviar resultados: nadie llegaría a recibirlos.
+	go func() {
+		defer close(trabajos) // el productor es dueño del cierre de esta entrada
+		for _, trabajo := range entrada {
+			trabajos <- trabajo
+		}
+	}()
 
 	// Cerramos "resultados" cuando TODOS los workers terminaron,
 	// en una goroutine aparte (para no bloquear la lectura de abajo).
@@ -74,10 +89,20 @@ func main() {
 		wg.Wait()
 		close(resultados)
 	}()
+	return resultados // <-chan permite recibir; el consumidor no puede enviar/cerrar
+}
+
+func main() {
+	fmt.Println("=== Worker pool: 3 workers procesando 8 trabajos ===")
+	productos := []string{"Alfajor", "Gaseosa", "Notebook", "Mouse", "Teclado", "Monitor", "Auriculares", "Cargador"}
+	trabajos := make([]Trabajo, 0, len(productos))
+	for i, producto := range productos {
+		trabajos = append(trabajos, Trabajo{ID: i + 1, Producto: producto})
+	}
 
 	// Recibimos los resultados a medida que llegan (for range
 	// termina solo cuando close(resultados) se ejecuta arriba).
-	for r := range resultados {
+	for r := range procesarTrabajos(trabajos) {
 		fmt.Printf("  [trabajo %d] %s\n", r.TrabajoID, r.Mensaje)
 	}
 
@@ -96,8 +121,10 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== RESUMEN ===")
 	fmt.Println("  N workers fijos       → leen de un channel de trabajos compartido")
+	fmt.Println("  Productor en goroutine → permite consumir resultados mientras se envían trabajos")
 	fmt.Println("  close(trabajos)       → avisa a los workers que no hay más para tomar")
 	fmt.Println("  wg.Wait() + goroutine → cierra 'resultados' cuando todos terminaron")
 	fmt.Println("  for range resultados  → recibe todo hasta que se cierra")
 	fmt.Println("  Uso típico            → procesar colas grandes con recursos limitados")
+	fmt.Println("  Orden de resultados   → puede variar; identificá cada resultado por su TrabajoID")
 }

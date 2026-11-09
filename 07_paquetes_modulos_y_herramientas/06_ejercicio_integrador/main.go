@@ -62,6 +62,7 @@ func main() {
 	fmt.Println("\n=== Historial de clientes ===")
 	fmt.Println(" -", clientes.ResumenCliente(mati))
 	fmt.Println(" -", clientes.ResumenCliente(ana))
+	fmt.Println("  Detalle de compras de Matias (copia segura):", mati.Historial())
 
 	fmt.Println("\n=== Stock restante ===")
 	for _, nombre := range []string{"Alfajor", "Gaseosa"} {

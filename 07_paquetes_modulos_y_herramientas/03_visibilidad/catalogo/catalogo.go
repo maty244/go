@@ -17,14 +17,15 @@ import "fmt"
 // Producto es EXPORTADO (empieza con mayúscula): otros paquetes
 // pueden crear y usar valores de este tipo.
 type Producto struct {
-	Nombre string // exportado: otros paquetes pueden leer/escribir
-	Precio float64
-	stock  int // NO exportado: invisible fuera de este paquete
+	Nombre       string // exportado: otros paquetes pueden leer/escribir
+	Precio       float64
+	stock        int // NO exportado: invisible fuera de este paquete
+	stockInicial int // NO exportado: referencia interna para calcular reposición
 }
 
-// margenGanancia es una constante NO exportada: es un detalle
-// interno de cómo calculamos el stock mínimo, no le interesa a
-// quien solo quiere USAR el catálogo.
+// margenGanancia es una constante NO exportada: acá se usa como proporción
+// interna (30% del stock inicial) para decidir cuándo avisar reposición;
+// no le interesa a quien solo quiere USAR el catálogo.
 const margenGanancia = 0.30
 
 // catalogoInterno es una variable NO exportada: el paquete la usa
@@ -36,7 +37,12 @@ var catalogoInterno = map[string]*Producto{}
 // NuevoProducto es EXPORTADA: es la forma correcta (y única) de
 // crear un producto y agregarlo al catálogo interno.
 func NuevoProducto(nombre string, precio float64, stockInicial int) *Producto {
-	p := &Producto{Nombre: nombre, Precio: precio, stock: stockInicial}
+	p := &Producto{
+		Nombre:       nombre,
+		Precio:       precio,
+		stock:        stockInicial,
+		stockInicial: stockInicial,
+	}
 	catalogoInterno[nombre] = p
 	return p
 }
@@ -45,13 +51,16 @@ func NuevoProducto(nombre string, precio float64, stockInicial int) *Producto {
 // Es la ÚNICA forma de modificar "stock" desde afuera, porque el
 // campo en sí es privado.
 func (p *Producto) Vender(cantidad int) error {
+	if cantidad <= 0 {
+		return fmt.Errorf("la cantidad a vender debe ser mayor a 0 (pediste %d)", cantidad)
+	}
 	if cantidad > p.stock {
 		return fmt.Errorf("stock insuficiente de %s: pediste %d, hay %d",
 			p.Nombre, cantidad, p.stock)
 	}
 	p.stock -= cantidad
 	if necesitaReponer(p) {
-		fmt.Printf("  [aviso interno] %s está por debajo del margen, reponer\n", p.Nombre)
+		fmt.Printf("  [aviso interno] %s está por debajo del margen (%d u.), reponer\n", p.Nombre, p.stock)
 	}
 	return nil
 }
@@ -63,10 +72,10 @@ func (p *Producto) Stock() int {
 	return p.stock
 }
 
-// necesitaReponer es un detalle interno: usa margenGanancia (que
-// tampoco es exportada) para decidir si hay que avisar reposición.
+// necesitaReponer es un detalle interno: compara el stock actual contra el
+// porcentaje mínimo del stock inicial usando margenGanancia (tampoco exportada).
 // Nada de esto le importa a quien solo usa el paquete catalogo.
 func necesitaReponer(p *Producto) bool {
-	minimo := int(float64(p.stock) * margenGanancia)
-	return p.stock <= minimo+1
+	minimo := int(float64(p.stockInicial) * margenGanancia)
+	return p.stock <= minimo
 }

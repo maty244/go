@@ -11,9 +11,9 @@ import (
 // Las variables de entorno son la forma ESTÁNDAR de configurar un
 // programa sin tocar el código: la URL de una base de datos, una
 // clave de API, si estamos en modo "desarrollo" o "producción".
-// Cuando lleguemos a HTTP/ y BaseDatos/, la config de tu API
-// (puerto, credenciales) va a venir de acá, NUNCA hardcodeada en
-// el código (y mucho menos, un secreto commiteado en git).
+// Cuando lleguemos a 13_http_rest/, la config de tu API (puerto,
+// credenciales) va a venir de acá, NUNCA hardcodeada en el código
+// (y mucho menos, un secreto commiteado en git).
 
 func main() {
 	// ─────────────────────────────────────────────────────────
@@ -31,7 +31,7 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	// EL PROBLEMA DE Getenv: NO DISTINGUE "vacía" DE "no existe"
 	// ─────────────────────────────────────────────────────────
-	// Igual que vimos con 09_biblioteca_estandar/03_json/05_campos_opcionales_con_punteros (punteros) y maps: Getenv devuelve
+	// Igual que vimos con 04_structs_metodos_y_punteros/09_valores_opcionales_y_new (punteros) y maps: Getenv devuelve
 	// "" tanto si la variable no existe, como si existe pero está
 	// vacía. Si necesitás la diferencia, usá LookupEnv.
 
@@ -45,8 +45,9 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	// Normalmente las variables de entorno se configuran DESDE
 	// AFUERA del programa (en la terminal, en un archivo .env, en
-	// la configuración del servidor). os.Setenv sirve sobre todo
-	// para tests, o para dar un valor por defecto en desarrollo.
+	// la configuración del servidor). os.Setenv sirve para demos
+	// o para dar un valor por defecto en desarrollo (en tests de
+	// 10_testing/ vas a preferir t.Setenv, que restaura el valor al terminar).
 
 	fmt.Println("\n=== os.Setenv: definir una variable (solo en este proceso) ===")
 

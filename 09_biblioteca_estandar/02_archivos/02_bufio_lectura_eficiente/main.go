@@ -20,9 +20,8 @@ import (
 // Ya usaste bufio.Scanner en 01_fundamentos/12_entrada_y_salida_fmt (entrada por consola,
 // leyendo de os.Stdin). Es EXACTAMENTE el mismo mecanismo, pero
 // leyendo de un archivo en vez del teclado: bufio no le importa
-// DE DÓNDE viene el texto, mientras sea un io.Reader (la interfaz
-// que representa "algo de donde se puede leer", que vas a ver
-// mejor cuando lleguemos a HTTP/).
+// DE DÓNDE viene el texto, mientras sea un io.Reader (como vimos
+// en 01_io y vas a usar en 13_http_rest/).
 
 func main() {
 	ruta := filepath.Join(os.TempDir(), "kiosco_ventas.txt")
@@ -30,7 +29,7 @@ func main() {
 
 	// Preparamos un archivo de varias líneas para leer después.
 	contenido := "Alfajor,800,15\nGaseosa,1200,5\nNotebook,450000,3\nMouse,8500,20\n"
-	os.WriteFile(ruta, []byte(contenido), 0644)
+	os.WriteFile(ruta, []byte(contenido), 0o644)
 
 	// ─────────────────────────────────────────────────────────
 	// bufio.Scanner: LEER LÍNEA POR LÍNEA
@@ -44,6 +43,9 @@ func main() {
 	}
 	defer archivo.Close() // SIEMPRE cerrar lo que abrís (05_funciones_y_closures/04_defer: defer)
 
+	// Nota: por defecto bufio.Scanner admite líneas de hasta 64 KB
+	// (bufio.MaxScanTokenSize). Si tus líneas pueden ser más largas,
+	// podés agrandar el límite con scanner.Buffer(buf, max).
 	scanner := bufio.NewScanner(archivo)
 	numeroLinea := 1
 	for scanner.Scan() {
@@ -84,8 +86,8 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	// Simétrico a Scanner: en vez de escribir al disco en CADA
 	// línea (lento), acumula en un buffer y escribe en bloques.
-	// Hay que llamar Flush() al final para asegurar que todo se
-	// grabó realmente.
+	// Hay que llamar Flush() al final (y chequear su error) para
+	// asegurar que todo se grabó realmente.
 
 	fmt.Println("\n=== bufio.Writer: escritura eficiente ===")
 
@@ -99,7 +101,10 @@ func main() {
 	for i := 1; i <= 3; i++ {
 		fmt.Fprintf(writer, "Línea de reporte %d\n", i)
 	}
-	writer.Flush() // sin esto, podría no llegar a escribirse todo al disco
+	if err := writer.Flush(); err != nil { // sin esto, podría no llegar a escribirse todo al disco
+		fmt.Println("Error en Flush:", err)
+		return
+	}
 
 	datosReporte, _ := os.ReadFile(rutaSalida)
 	fmt.Println(string(datosReporte))

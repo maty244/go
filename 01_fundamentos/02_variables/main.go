@@ -54,9 +54,13 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	// REASIGNACIÓN DE VARIABLES
 	// ─────────────────────────────────────────────────────────
-	// Una vez declarada, usamos = para cambiar su valor.
-	// NO usamos := de nuevo (eso crearía una variable nueva).
-	edad = 26 // cumpleaños! cambiamos el valor
+	// Una vez declarada una variable en este bloque, usamos = para cambiar su valor.
+	// Si escribís "edad := 26" de nuevo en el MISMO bloque (sin ninguna variable
+	// nueva a la izquierda), el compilador da error:
+	//   "no new variables on left side of :="
+	// (Ojo: si usaras "edad := 26" dentro de otro bloque interno {}, ahí sí
+	// crearía una variable nueva distinta haciendo "shadowing").
+	edad = 26 // cumpleaños! cambiamos el valor de la variable existente
 	fmt.Println("\n=== Reasignación ===")
 	fmt.Println("Nueva edad:", edad)
 

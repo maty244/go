@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log/slog"
 	"os"
@@ -14,11 +15,13 @@ import (
 // formato se muestra, y a partir de qué nivel se imprime.
 //
 // Un "Handler" es el encargado de decidir el FORMATO final del
-// log. La librería estándar trae dos:
+// log. La librería estándar trae:
 //
-//   slog.NewTextHandler → texto plano, legible por humanos
-//   slog.NewJSONHandler → JSON, ideal para que lo lea OTRO programa
-//                          (herramientas de monitoreo, como Grafana/Loki)
+//   slog.NewTextHandler  → texto plano, legible por humanos
+//   slog.NewJSONHandler  → JSON, ideal para que lo lea OTRO programa
+//                           (herramientas de monitoreo, como Grafana/Loki)
+//   slog.NewMultiHandler → (Go 1.26+) envía cada log a VARIOS handlers a la vez
+//   slog.DiscardHandler  → (Go 1.24+) descarta los logs (muy útil en tests)
 
 func main() {
 	fmt.Println("=== Handler de texto (el que ya viste, por defecto) ===")
@@ -93,11 +96,32 @@ func main() {
 	// Ambos logs incluyen "servicio=pagos" automáticamente
 
 	// ─────────────────────────────────────────────────────────
+	// slog.NewMultiHandler (Go 1.26): LOGUEAR A VARIOS DESTINOS A LA VEZ
+	// ─────────────────────────────────────────────────────────
+	// En Go 1.26 se sumó slog.NewMultiHandler(h1, h2, ...), que
+	// permite mandar el mismo evento a múltiples handlers (por
+	// ejemplo: texto legible en la terminal y JSON hacia un archivo
+	// o buffer de auditoría).
+
+	fmt.Println("\n=== slog.NewMultiHandler (Go 1.26): múltiples destinos ===")
+
+	var archivoSimulado bytes.Buffer
+	multi := slog.NewMultiHandler(
+		slog.NewTextHandler(os.Stdout, nil),
+		slog.NewJSONHandler(&archivoSimulado, nil),
+	)
+	loggerMulti := slog.New(multi)
+	loggerMulti.Info("venta registrada en consola y auditoría", "id", 9001)
+	fmt.Print("Guardado en el buffer JSON: ", archivoSimulado.String())
+
+	// ─────────────────────────────────────────────────────────
 	// RESUMEN
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== RESUMEN ===")
 	fmt.Println("  slog.NewTextHandler(w, opts)  → logs en texto plano")
 	fmt.Println("  slog.NewJSONHandler(w, opts)  → logs en JSON (ideal para producción)")
+	fmt.Println("  slog.NewMultiHandler(h1, h2)  → (Go 1.26) despacha a varios handlers")
+	fmt.Println("  slog.DiscardHandler           → (Go 1.24+) silencia logs (útil en tests)")
 	fmt.Println("  HandlerOptions{Level: X}      → nivel mínimo a partir del cual se imprime")
 	fmt.Println("  slog.SetDefault(logger)       → cambia el logger global del programa")
 	fmt.Println("  logger.With(clave, valor)     → logger reusable con contexto fijo")

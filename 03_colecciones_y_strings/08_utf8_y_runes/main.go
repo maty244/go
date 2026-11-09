@@ -57,22 +57,39 @@ func main() {
 	fmt.Println(`len("🎉") =`, len("🎉")) // 4 bytes
 
 	// ─────────────────────────────────────────────────────────
-	// LEN vs RuneCountInString: bytes vs letras
+	// LEN vs RuneCountInString: bytes vs puntos de código
 	// ─────────────────────────────────────────────────────────
 	// len(s)                        → cantidad de BYTES
-	// utf8.RuneCountInString(s)     → cantidad de RUNES (letras)
-	// Para texto en español, casi siempre querés la segunda.
+	// utf8.RuneCountInString(s)     → cantidad de RUNES, no de letras visibles
+	// Un carácter visible (grafema) puede combinar varios puntos de código.
 
 	palabra := "año"
 	fmt.Println("\n=== Bytes vs letras ===")
 	fmt.Println("palabra:", palabra)
-	fmt.Println("len (bytes):", len(palabra))                                   // 4
-	fmt.Println("RuneCountInString (letras):", utf8.RuneCountInString(palabra)) // 3
+	fmt.Println("len (bytes):", len(palabra))                                  // 4
+	fmt.Println("RuneCountInString (runes):", utf8.RuneCountInString(palabra)) // 3
 
 	frase := "el niño tomó café ☕"
 	fmt.Println("\nfrase:", frase)
 	fmt.Println("bytes: ", len(frase))                    // más que las letras
-	fmt.Println("letras:", utf8.RuneCountInString(frase)) // lo que ve un humano
+	fmt.Println("runes: ", utf8.RuneCountInString(frase)) // puntos de código
+
+	// Se ven parecidas, pero Go no normaliza automáticamente el texto.
+	// "é" es U+00E9; "e\u0301" combina e con un acento U+0301.
+	compuesta, combinada := "é", "e\u0301"
+	fmt.Println("\n=== Un carácter visible puede tener varias runes ===")
+	fmt.Printf("é: bytes=%d runes=%d\n", len(compuesta), utf8.RuneCountInString(compuesta))          // 2, 1
+	fmt.Printf("e + acento: bytes=%d runes=%d\n", len(combinada), utf8.RuneCountInString(combinada)) // 3, 2
+	fmt.Println("¿Strings iguales?", compuesta == combinada)                                         // false: sus bytes difieren
+
+	// Un string no valida sus bytes al crearse. range decodifica UTF-8 y
+	// devuelve RuneError (U+FFFD) por cada byte de una codificación inválida.
+	invalido := string([]byte{0xff, 'A'})
+	fmt.Println("\n=== Bytes que no forman UTF-8 válido ===")
+	fmt.Println("UTF-8 válido:", utf8.ValidString(invalido)) // false
+	for i, r := range invalido {
+		fmt.Printf("byte %d → %U\n", i, r) // U+FFFD, U+0041
+	}
 
 	// ─────────────────────────────────────────────────────────
 	// VER LOS BYTES REALES DE UN STRING
@@ -108,7 +125,7 @@ func main() {
 	// CUIDADO: string(número) NO convierte a texto
 	// ─────────────────────────────────────────────────────────
 	// string(65) NO da "65": da el carácter con código 65 → "A".
-	// Para convertir números a texto está strconv (tema 08).
+	// Para convertir números a texto está strconv (14_strconv_conversiones).
 
 	fmt.Println("\n=== Trampa: string(número) ===")
 	fmt.Println("string(65):", string(rune(65)))   // "A" (¡no "65"!)
@@ -123,7 +140,8 @@ func main() {
 	fmt.Println("  rune        → un code point; alias de int32; comillas simples")
 	fmt.Println("  byte        → un byte crudo; alias de uint8")
 	fmt.Println("  len(s)                    → BYTES")
-	fmt.Println("  utf8.RuneCountInString(s) → LETRAS")
-	fmt.Println("  []rune(s)   → para trabajar letra por letra")
+	fmt.Println("  utf8.RuneCountInString(s) → PUNTOS DE CÓDIGO, no grafemas")
+	fmt.Println("  []rune(s)   → para trabajar punto de código por punto de código")
+	fmt.Println("  utf8.ValidString(s)      → verifica si los bytes son UTF-8 válido")
 	fmt.Println("  string(65)  → \"A\", NO \"65\" (para eso, strconv)")
 }

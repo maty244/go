@@ -103,25 +103,33 @@ func main() {
 	fmt.Println("Array de strings:", nombres) // [   ] (4 strings vacíos)
 
 	// ─────────────────────────────────────────────────────────
-	// ZERO VALUES EN PUNTEROS, SLICES, MAPS, CHANNELS
+	// ZERO VALUES EN PUNTEROS, SLICES, MAPS, CHANNELS Y FUNCIONES
 	// ─────────────────────────────────────────────────────────
-	// Para estos tipos de referencia, el zero value es nil.
-	// nil significa "no apunta a nada" o "no está inicializado".
+	// Para estos tipos, el zero value es nil.
+	// nil significa "no apunta a nada" o "no tiene estructura subyacente inicializada".
 
 	var puntero *int        // nil
 	var slice []int         // nil
 	var mapa map[string]int // nil
 	var canal chan int      // nil
+	var funcion func()      // nil
 
-	fmt.Println("\n=== Zero Values de tipos referencia (nil) ===")
-	fmt.Printf("*int   zero value: %v\n", puntero) // <nil>
-	fmt.Printf("[]int  zero value: %v\n", slice)   // []
-	fmt.Printf("map    zero value: %v\n", mapa)    // map[]
-	fmt.Printf("chan   zero value: %v\n", canal)   // <nil>
+	fmt.Println("\n=== Zero Values que son nil ===")
+	fmt.Printf("*int   zero value: %v\n", puntero)                    // <nil>
+	fmt.Printf("[]int  zero value: %v (len=%d)\n", slice, len(slice)) // [] (len=0)
+	fmt.Printf("map    zero value: %v\n", mapa)                       // map[]
+	fmt.Printf("chan   zero value: %v\n", canal)                      // <nil>
+	fmt.Printf("func   zero value: %v\n", funcion == nil)             // true
 
-	// Verificar si un slice es nil
+	// DIFERENCIA CLAVE ENTRE SLICE nil Y MAP nil:
+	// - Un slice nil ES UTILIZABLE de inmediato: len(slice) es 0, podés recorrerlo
+	//   con range y podés hacerle append(slice, 10) sin haber llamado a make().
+	// - Un map nil se puede LEER (devuelve el zero value), pero ESCRIBIR en un
+	//   map nil (mapa["a"] = 1) provoca un PANIC en runtime (requiere make() o map[...]{}).
 	if slice == nil {
-		fmt.Println("\nEl slice no fue inicializado (es nil)")
+		fmt.Println("\nEl slice es nil, pero igual podemos usar append directamente:")
+		slice = append(slice, 100)
+		fmt.Println("Slice después de append:", slice)
 	}
 
 	// ─────────────────────────────────────────────────────────
@@ -186,9 +194,10 @@ func main() {
 	fmt.Println("string         | \"\" (vacío)")
 	fmt.Println("byte, rune     | 0")
 	fmt.Println("pointer        | nil")
-	fmt.Println("slice          | nil")
-	fmt.Println("map            | nil")
+	fmt.Println("slice          | nil (pero len=0 y acepta append)")
+	fmt.Println("map            | nil (solo lectura; escribir da panic)")
 	fmt.Println("channel        | nil")
+	fmt.Println("func           | nil")
 	fmt.Println("interface      | nil")
 	fmt.Println("struct         | cada campo con su zero value")
 }

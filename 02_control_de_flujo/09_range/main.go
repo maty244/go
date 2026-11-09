@@ -13,17 +13,20 @@ func main() {
 	// Sintaxis general:
 	//   for índice, valor := range colección { }
 	//
-	// Funciona con: slices, arrays, strings, maps, channels.
+	// Funciona con: slices, arrays, strings, maps, channels, enteros (Go 1.22+)
+	// y funciones iteradoras (Go 1.23+, que veremos en 08_generics_e_iteradores).
 	//
-	// En cada iteración, range retorna DOS valores:
+	// En cada iteración, range retorna:
 	//   - slices/arrays : índice (int),    valor (copia del elemento)
 	//   - strings       : índice (int, posición en bytes), rune (caracter Unicode)
 	//   - maps          : clave,           valor
-	//   - channels      : valor (solo uno)
+	//   - channels      : valor (uno solo, hasta que se cierre el canal)
+	//   - enteros (N)   : entero de 0 a N-1 (o sin variable: `for range N`)
 	//
 	// Podés ignorar cualquiera con _:
 	//   for _, v := range s  → solo valor
 	//   for i := range s     → solo índice (sin la coma!)
+	//   for range s          → repetir len(s) veces sin usar variables
 
 	// ─────────────────────────────────────────────────────────
 	// FOR RANGE SOBRE SLICE / ARRAY
@@ -113,8 +116,8 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	// FOR RANGE SOBRE MAP
 	// ─────────────────────────────────────────────────────────
-	// Lo vemos detallado en el siguiente archivo (26_iterando_maps),
-	// pero aquí una muestra rápida.
+	// Lo vemos en profundidad en 03_colecciones_y_strings/04_maps y 05_iteracion_de_maps,
+	// pero aquí una muestra rápida:
 
 	fmt.Println("\n=== For range sobre map ===")
 
@@ -146,6 +149,32 @@ func main() {
 
 	for valor := range ch {
 		fmt.Println("Recibido del channel:", valor)
+	}
+
+	// ─────────────────────────────────────────────────────────
+	// FOR RANGE SOBRE ENTEROS (Go 1.22+)
+	// ─────────────────────────────────────────────────────────
+	// Desde Go 1.22, podés hacer `for i := range N` donde N es un entero.
+	// Recorre desde 0 hasta N-1 (igual que `for i := 0; i < N; i++`).
+	// Si N <= 0, el cuerpo del bucle no se ejecuta ninguna vez.
+	fmt.Println("\n=== For range sobre enteros (Go 1.22+) ===")
+
+	fmt.Print("for i := range 5 → ")
+	for i := range 5 {
+		fmt.Printf("%d ", i) // imprime: 0 1 2 3 4
+	}
+	fmt.Println()
+
+	// También podés omitir la variable si solo querés repetir algo N veces:
+	fmt.Print("for range 3      → ")
+	for range 3 {
+		fmt.Print("¡Go! ")
+	}
+	fmt.Println()
+
+	// Con range 0 no entra nunca al cuerpo:
+	for range 0 {
+		fmt.Println("Esto jamás se ejecuta")
 	}
 
 	// ─────────────────────────────────────────────────────────
@@ -228,6 +257,8 @@ func main() {
 	fmt.Println("for i, r := range string  → índice int (posición en bytes) + rune Unicode")
 	fmt.Println("for k, v := range map     → clave + valor (orden no especificado)")
 	fmt.Println("for v := range channel    → valor (hasta que se cierre)")
+	fmt.Println("for i := range N          → enteros de 0 a N-1 (Go 1.22+)")
+	fmt.Println("for range N               → repite el bloque N veces (Go 1.22+)")
 	fmt.Println()
 	fmt.Println("⚠️ El valor en range es una COPIA.")
 	fmt.Println("   Para modificar: usá el índice → slice[i] = nuevoValor")

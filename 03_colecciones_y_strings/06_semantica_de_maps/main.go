@@ -96,24 +96,26 @@ func setEnCache(c Cache, clave, valor string) {
 // CONJUNTO (set pattern con map)
 // ─────────────────────────────────────────────────────────
 
-type Conjunto[T comparable] struct {
-	elementos map[T]struct{} // struct{} ocupa 0 bytes
+// Primero lo hacemos concreto para strings. La generalización con [T
+// comparable] se estudia en 08_generics_e_iteradores, no es necesaria acá.
+type Conjunto struct {
+	elementos map[string]struct{} // struct{} es un valor sin campos
 }
 
-func NuevoConjunto[T comparable]() *Conjunto[T] {
-	return &Conjunto[T]{elementos: make(map[T]struct{})}
+func NuevoConjunto() *Conjunto {
+	return &Conjunto{elementos: make(map[string]struct{})}
 }
 
-func (c *Conjunto[T]) Agregar(v T) {
+func (c *Conjunto) Agregar(v string) {
 	c.elementos[v] = struct{}{}
 }
 
-func (c *Conjunto[T]) Contiene(v T) bool {
+func (c *Conjunto) Contiene(v string) bool {
 	_, existe := c.elementos[v]
 	return existe
 }
 
-func (c *Conjunto[T]) Largo() int {
+func (c *Conjunto) Largo() int {
 	return len(c.elementos)
 }
 
@@ -213,9 +215,9 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	// CONJUNTO (set) con map
 	// ─────────────────────────────────────────────────────────
-	fmt.Println("\n=== Conjunto (set) con map[T]struct{} ===")
+	fmt.Println("\n=== Conjunto (set) con map[string]struct{} ===")
 
-	visitados := NuevoConjunto[string]()
+	visitados := NuevoConjunto()
 	urls := []string{"/home", "/about", "/home", "/contact", "/about", "/home"}
 
 	for _, url := range urls {
@@ -253,7 +255,7 @@ func main() {
 	fmt.Println("  func f(m *map[K]V)   → solo si hay que reemplazar el descriptor")
 	fmt.Println()
 	fmt.Println("  Para copiar: maps.Clone crea un map independiente (copia superficial)")
-	fmt.Println("  Para set:    map[T]struct{} (struct{} ocupa 0 bytes)")
+	fmt.Println("  Para set:    map[string]struct{} (solo importa si la clave existe)")
 }
 
 func contarPalabras(m map[string]int, palabras []string) {

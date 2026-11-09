@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // =========================================================
 // AGREGAR Y ELIMINAR ELEMENTOS A LA ORDEN
@@ -9,11 +12,13 @@ import "fmt"
 // Aprendemos a pasar slices a funciones y a modificarlos.
 //
 // REGLA IMPORTANTE QUE VEREMOS:
-// En Go, los slices se pasan "por referencia" en cuanto a su
-// contenido, PERO el slice header (len, cap, puntero) se copia.
-// Esto significa que append() dentro de una función puede NO
-// reflejarse afuera. Por eso, muchas funciones retornan el
-// slice modificado.
+// En Go TODO se pasa por valor (copia). Cuando pasás un slice a una
+// función, se copia su descriptor/header (puntero, len, cap).
+// Como el puntero copiado apunta al MISMO array subyacente, modificar
+// un elemento existente (s[i] = x) sí se ve afuera; pero append()
+// cambia el len (y puede crear un array nuevo si falta capacidad) en la
+// copia local del header. Por eso, las funciones que hacen append()
+// o cambian la longitud deben RETORNAR el slice modificado.
 
 // ─────────────────────────────────────────────────────────
 // TIPOS
@@ -119,11 +124,7 @@ func mostrarCarrito(carrito []ItemCarrito) {
 }
 
 func linea(n int) string {
-	s := ""
-	for i := 0; i < n; i++ {
-		s += "-"
-	}
-	return s
+	return strings.Repeat("-", n)
 }
 
 func main() {

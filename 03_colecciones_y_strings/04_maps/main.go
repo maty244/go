@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"sort"
+	"maps"
+	"slices"
 )
 
 func main() {
@@ -16,6 +17,9 @@ func main() {
 	// La clave K debe ser comparable: bool, números, strings, channels,
 	// punteros, interfaces y arrays/structs cuyos componentes sean comparables.
 	// Slices, maps y funciones no pueden ser claves.
+	//
+	// ⚠️ Los maps NO se pueden comparar con == (salvo contra nil: m == nil).
+	// Para comparar si dos maps tienen las mismas claves y valores, usá maps.Equal(m1, m2).
 	//
 	// Sintaxis: map[tipoClave]tipoValor
 
@@ -69,7 +73,7 @@ func main() {
 	edadDesconocido := edades["Pedro"] // Pedro no existe → retorna 0
 	fmt.Printf("Ana: %d | Pedro (no existe): %d\n", edadAna, edadDesconocido)
 
-	// CON verificación (el patrón correcto)
+	// CON verificación (el patrón correcto: "comma-ok idiom")
 	if edad, existe := edades["Carlos"]; existe {
 		fmt.Printf("Carlos tiene %d años\n", edad)
 	} else {
@@ -81,9 +85,9 @@ func main() {
 	}
 
 	// ─────────────────────────────────────────────────────────
-	// ELIMINAR ELEMENTOS
+	// ELIMINAR Y COMPARAR ELEMENTOS
 	// ─────────────────────────────────────────────────────────
-	fmt.Println("\n=== Eliminar ===")
+	fmt.Println("\n=== Eliminar y comparar ===")
 	fmt.Println("Antes:", edades)
 	delete(edades, "Mia")
 	fmt.Println("Después de delete('Mia'):", edades)
@@ -91,8 +95,11 @@ func main() {
 	// delete en una clave que no existe no da error (silencioso)
 	delete(edades, "Fantasma") // no hace nada
 
-	// clear existe desde Go 1.21 y elimina todas las entradas de una vez.
+	// Comparar dos maps con maps.Equal (Go 1.21+)
 	copiaEdades := map[string]int{"Ana": 29, "Carlos": 35}
+	fmt.Println("¿edades y copiaEdades son iguales? (maps.Equal):", maps.Equal(edades, copiaEdades))
+
+	// clear (Go 1.21+) elimina todas las entradas de una vez.
 	clear(copiaEdades)
 	fmt.Println("Después de clear:", copiaEdades, "len:", len(copiaEdades))
 
@@ -115,14 +122,9 @@ func main() {
 		fmt.Printf("  %s: %d unidades\n", producto, cantidad)
 	}
 
-	// Para orden predecible: extraer claves, ordenarlas, iterar
-	fmt.Println("\nInventario (orden alfabético):")
-	claves := make([]string, 0, len(inventario))
-	for k := range inventario {
-		claves = append(claves, k)
-	}
-	sort.Strings(claves)
-	for _, k := range claves {
+	// Para orden predecible en Go moderno (1.23+): slices.Sorted(maps.Keys(m))
+	fmt.Println("\nInventario (orden alfabético con slices.Sorted + maps.Keys):")
+	for _, k := range slices.Sorted(maps.Keys(inventario)) {
 		fmt.Printf("  %s: %d unidades\n", k, inventario[k])
 	}
 
@@ -140,8 +142,8 @@ func main() {
 	}
 
 	fmt.Println("Frecuencia de palabras:")
-	for palabra, count := range frecuencia {
-		fmt.Printf("  '%s': %d veces\n", palabra, count)
+	for _, palabra := range slices.Sorted(maps.Keys(frecuencia)) {
+		fmt.Printf("  '%s': %d veces\n", palabra, frecuencia[palabra])
 	}
 
 	// ─────────────────────────────────────────────────────────
@@ -186,16 +188,27 @@ func main() {
 		"P003": {Nombre: "Teclado", Precio: 75.50, Stock: 18},
 	}
 
-	for codigo, prod := range catalogo {
+	// ⚠️ DETALLE CLAVE DE GO: los valores dentro de un map NO son direccionables
+	// (porque el map puede crecer y mover sus buckets en memoria).
+	// Por eso NO compila hacer directamente:
+	//   catalogo["P001"].Stock = 10  // ❌ cannot assign to struct field in map
+	//
+	// Para modificar un campo de un struct en un map: leer → modificar → reasignar:
+	prod := catalogo["P001"]
+	prod.Stock = 10
+	catalogo["P001"] = prod
+
+	for _, codigo := range slices.Sorted(maps.Keys(catalogo)) {
+		p := catalogo[codigo]
 		fmt.Printf("  [%s] %s - $%.2f (stock: %d)\n",
-			codigo, prod.Nombre, prod.Precio, prod.Stock)
+			codigo, p.Nombre, p.Precio, p.Stock)
 	}
 
 	// ─────────────────────────────────────────────────────────
 	// MAP COMO SET (conjunto sin duplicados)
 	// ─────────────────────────────────────────────────────────
 	// Go no tiene tipo Set nativo. Se simula con map[tipo]bool
-	// o map[tipo]struct{} (más eficiente, struct{} no ocupa memoria)
+	// o map[tipo]struct{} (más eficiente, struct{} ocupa 0 bytes)
 
 	fmt.Println("\n=== Map como Set ===")
 	numeros := []int{3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5}
@@ -206,13 +219,7 @@ func main() {
 	}
 
 	fmt.Printf("Números con duplicados: %v\n", numeros)
-	fmt.Printf("Sin duplicados (set): ")
-	claves2 := []int{}
-	for k := range set {
-		claves2 = append(claves2, k)
-	}
-	sort.Ints(claves2)
-	fmt.Println(claves2)
+	fmt.Println("Sin duplicados (set):", slices.Sorted(maps.Keys(set)))
 
 	// ─────────────────────────────────────────────────────────
 	// RESUMEN
@@ -223,8 +230,9 @@ func main() {
 	fmt.Println("Leer seguro:   val, ok := m[clave]")
 	fmt.Println("Eliminar:      delete(m, clave)")
 	fmt.Println("Vaciar:        clear(m)")
+	fmt.Println("Comparar:      maps.Equal(m1, m2)")
 	fmt.Println("Iterar:        for k, v := range m { ... }")
-	fmt.Println("Orden:         no especificado; ordená claves si importa")
+	fmt.Println("Ordenar keys:  slices.Sorted(maps.Keys(m))")
 	fmt.Println("Nil map:       no se puede escribir en un map nil (panic)")
 }
 

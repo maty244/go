@@ -31,8 +31,11 @@ import (
 // context.Background(): EL PUNTO DE PARTIDA
 // ─────────────────────────────────────────────────────────
 // Es un Context "vacío", sin cancelación ni timeout: el contexto
-// raíz del que parten todos los demás. Se usa en main(), en tests,
-// o como base para crear contextos más específicos (temas 02 y 03).
+// raíz del que parten todos los demás. Se usa en main() o como base
+// para crear contextos más específicos (temas 02 y 03).
+// (También existen context.TODO() cuando estás refactorizando y aún
+// no definiste de dónde viene el ctx, y t.Context() en tests de
+// 10_testing/ que se cancela solo al terminar el test).
 
 func main() {
 	fmt.Println("=== context.Background(): el contexto raíz ===")

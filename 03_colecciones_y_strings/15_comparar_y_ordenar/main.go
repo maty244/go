@@ -1,8 +1,9 @@
 package main
 
 import (
+	"cmp"
 	"fmt"
-	"sort"
+	"slices"
 	"strings"
 )
 
@@ -42,7 +43,7 @@ func main() {
 	fmt.Println(`"hola" == "Hola"   →`, a == "Hola") // false (mayúscula)
 	fmt.Println(`"hola" != "chau"   →`, a != "chau") // true
 
-	// Para ignorar mayúsculas: EqualFold (visto en el tema 06)
+	// Para ignorar mayúsculas: EqualFold (12_paquete_strings_buscar)
 	fmt.Println(`EqualFold("hola","HOLA") →`, strings.EqualFold("hola", "HOLA")) // true
 
 	// ─────────────────────────────────────────────────────────
@@ -60,7 +61,7 @@ func main() {
 
 	// OJO con la última: "10" < "9" porque compara el carácter
 	// '1' contra '9'. Para comparar números, primero convertir
-	// con strconv.Atoi (tema 08).
+	// con strconv.Atoi (14_strconv_conversiones).
 
 	// ─────────────────────────────────────────────────────────
 	// LAS DOS TRAMPAS: mayúsculas y tildes
@@ -74,62 +75,67 @@ func main() {
 	fmt.Println("normalizado:", strings.ToLower(x) < strings.ToLower(y)) // false: zorro > ana
 
 	// ─────────────────────────────────────────────────────────
-	// strings.Compare: -1, 0, 1
+	// strings.Compare y cmp.Compare: -1, 0, 1
 	// ─────────────────────────────────────────────────────────
-	// Mismo orden que <, pero devuelve un int (estilo C).
-	// La propia documentación de Go recomienda usar los
-	// operadores ==, <, > — Compare existe por simetría.
+	// Mismo orden que <, pero devuelven un int (-1, 0, 1).
+	// Para comparar dos valores sueltos usá ==, <, >.
+	// cmp.Compare (o strings.Compare) es ideal cuando pasás una
+	// función comparadora a slices.SortFunc.
 
-	fmt.Println("\n=== strings.Compare ===")
+	fmt.Println("\n=== strings.Compare / cmp.Compare ===")
 	fmt.Println(`Compare("a","b") →`, strings.Compare("a", "b")) // -1 (a viene antes)
 	fmt.Println(`Compare("b","b") →`, strings.Compare("b", "b")) //  0 (iguales)
 	fmt.Println(`Compare("c","b") →`, strings.Compare("c", "b")) //  1 (c viene después)
 
 	// ─────────────────────────────────────────────────────────
-	// ORDENAR UN []string
+	// ORDENAR UN []string (slices.Sort y slices.SortFunc)
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== Ordenar slices de strings ===")
 	nombres := []string{"matias", "ana", "luis", "berta", "carlos"}
-	sort.Strings(nombres)
+	slices.Sort(nombres) // (en código anterior a Go 1.21 vas a ver sort.Strings)
 	fmt.Println("ordenado:", nombres)
 
 	// Mirá cómo las trampas afectan el orden real:
 	mezcla := []string{"zorro", "Ana", "árbol", "banana", "Único"}
-	sort.Strings(mezcla)
+	slices.Sort(mezcla)
 	fmt.Println("con mayúsculas y tildes:", mezcla)
 	// → mayúsculas primero, tildes al final
 
-	// Orden personalizado con sort.Slice: ignorando mayúsculas/caso
-	sort.Slice(mezcla, func(i, j int) bool {
-		return strings.ToLower(mezcla[i]) < strings.ToLower(mezcla[j])
+	// Orden personalizado con slices.SortFunc (o sort.Slice en código viejo):
+	// La función recibe (a, b) y devuelve negativo si a < b, 0 si iguales, positivo si a > b.
+	slices.SortFunc(mezcla, func(a, b string) int {
+		return cmp.Compare(strings.ToLower(a), strings.ToLower(b))
 	})
 	fmt.Println("ignorando mayúsculas:   ", mezcla)
 	// (las tildes igual quedan al final: eso ya pide x/text/collate)
 
 	// Ordenar por LONGITUD (otro criterio custom)
 	palabras := []string{"sol", "estrella", "luna", "mar"}
-	sort.Slice(palabras, func(i, j int) bool {
-		return len(palabras[i]) < len(palabras[j])
+	slices.SortFunc(palabras, func(a, b string) int {
+		return cmp.Compare(len(a), len(b))
 	})
 	fmt.Println("por longitud:", palabras)
 
 	// ─────────────────────────────────────────────────────────
-	// BÚSQUEDA EN SLICE ORDENADO
+	// BÚSQUEDA EN SLICE ORDENADO (slices.BinarySearch)
 	// ─────────────────────────────────────────────────────────
+	// slices.BinarySearch devuelve (posición, encontrado), que es mucho más
+	// seguro que el antiguo sort.SearchStrings (que solo devolvía un índice).
 	fmt.Println("\n=== Búsqueda binaria ===")
-	sort.Strings(nombres) // requisito: estar ordenado
-	pos := sort.SearchStrings(nombres, "luis")
-	fmt.Printf("'luis' está en el índice %d de %v\n", pos, nombres)
+	slices.Sort(nombres) // requisito: estar ordenado
+	pos, encontrado := slices.BinarySearch(nombres, "luis")
+	fmt.Printf("'luis' está en el índice %d de %v (encontrado: %v)\n", pos, nombres, encontrado)
 
 	// ─────────────────────────────────────────────────────────
 	// RESUMEN
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== RESUMEN ===")
-	fmt.Println("  ==, !=, <, >          → comparan contenido, byte a byte")
-	fmt.Println("  EqualFold(a, b)       → igualdad sin mayúsculas")
-	fmt.Println("  Trampa 1              → \"Z\" < \"a\" (mayúsculas valen menos)")
-	fmt.Println("  Trampa 2              → tildes pesan más (\"á\" > \"z\")")
-	fmt.Println("  Trampa 3              → \"10\" < \"9\" (texto, no números)")
-	fmt.Println("  sort.Strings(s)       → ordena un []string")
-	fmt.Println("  sort.Slice(s, func)   → orden con criterio propio")
+	fmt.Println("  ==, !=, <, >              → comparan contenido, byte a byte")
+	fmt.Println("  EqualFold(a, b)           → igualdad sin mayúsculas")
+	fmt.Println("  Trampa 1                  → \"Z\" < \"a\" (mayúsculas valen menos)")
+	fmt.Println("  Trampa 2                  → tildes pesan más (\"á\" > \"z\")")
+	fmt.Println("  Trampa 3                  → \"10\" < \"9\" (texto, no números)")
+	fmt.Println("  slices.Sort(s)            → ordena un []string")
+	fmt.Println("  slices.SortFunc(s, func)  → orden con criterio propio (usando cmp.Compare)")
+	fmt.Println("  slices.BinarySearch(s, x) → búsqueda binaria en slice ordenado")
 }

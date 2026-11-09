@@ -33,10 +33,10 @@ func Saludar(nombre string) string {
 	return "¡Hola, " + nombre + "!"
 }
 
-// MAX_RETRIES define el número máximo de reintentos para operaciones de red.
+// MaxRetries define el número máximo de reintentos para operaciones de red.
 // Se eligió 3 porque las métricas de producción muestran que el 99.9% de
 // los errores transitorios se resuelven en el primer o segundo reintento.
-const MAX_RETRIES = 3
+const MaxRetries = 3
 
 func main() {
 	// ─────────────────────────────────────────────────────────
@@ -129,12 +129,16 @@ func main() {
 	}
 
 	// ─────────────────────────────────────────────────────────
-	// COMENTARIOS DE GODOC PARA TIPOS
+	// COMENTARIOS DE GODOC Y DIRECTIVAS DEL COMPILADOR (//go:)
 	// ─────────────────────────────────────────────────────────
-	// El comentario antes de un tipo aparece en la documentación.
+	// El comentario antes de un símbolo exportado aparece en `go doc`.
+	// Además, los comentarios que empiezan con "//go:" (SIN espacio después
+	// de //) son DIRECTIVAS para el compilador o herramientas de Go, como:
+	//   //go:build reto   (compilación condicional, usada en retos/reto_test.go)
+	//   //go:embed ...    (incrustar archivos dentro del binario)
 
 	fmt.Println("\nUsando Saludar:", Saludar("Ana"))
-	fmt.Println("MAX_RETRIES:", MAX_RETRIES)
+	fmt.Println("MaxRetries:", MaxRetries)
 }
 
 // ─────────────────────────────────────────────────────────

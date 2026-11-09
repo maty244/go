@@ -51,8 +51,8 @@ func saludarCliente(nombre string) {
 // Esta función toma un precio y le aplica el IVA (21%).
 // Retorna el precio final como float64.
 func calcularPrecioConIVA(precioBase float64) float64 {
-	const IVA = 0.21
-	return precioBase * (1 + IVA)
+	const tasaIVA = 0.21
+	return precioBase * (1 + tasaIVA)
 }
 
 // ─────────────────────────────────────────────────────────
@@ -60,6 +60,17 @@ func calcularPrecioConIVA(precioBase float64) float64 {
 // ─────────────────────────────────────────────────────────
 func mostrarProducto(nombre string, precio float64, stock int) {
 	fmt.Printf("  📦 %-15s | $%8.2f | Stock: %d\n", nombre, precio, stock)
+}
+
+// ─────────────────────────────────────────────────────────
+// REGLA FUNDAMENTAL EN GO: PASO POR VALOR (COPIA)
+// ─────────────────────────────────────────────────────────
+// En Go, TODOS los argumentos se pasan por VALOR (se hace una copia).
+// Si modificás un parámetro dentro de la función, solo cambiás la copia local;
+// la variable original de quien llamó a la función NO se modifica.
+func intentarCambiarStock(stock int) {
+	stock = 0 // solo modifica la copia local "stock"
+	fmt.Println("  Dentro de intentarCambiarStock, copia local =", stock)
 }
 
 func main() {
@@ -91,12 +102,19 @@ func main() {
 	mostrarProducto("Teclado", 75.50, 18)
 	mostrarProducto("Monitor", 450.00, 3)
 
+	// Demostración de paso por valor (copia)
+	fmt.Println("\n=== Paso por valor (se copia el argumento) ===")
+	stockOriginal := 10
+	fmt.Println("  Antes de llamar a la función, stockOriginal =", stockOriginal)
+	intentarCambiarStock(stockOriginal)
+	fmt.Println("  Después de llamar a la función, stockOriginal =", stockOriginal, "(¡sin cambios!)")
+
 	// ─────────────────────────────────────────────────────────
 	// PUNTOS CLAVE
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== Lo que aprendimos ===")
 	fmt.Println("1. func nombre()               → función sin params ni retorno")
-	fmt.Println("2. func nombre(p tipo)         → función con parámetro")
+	fmt.Println("2. func nombre(p tipo)         → función con parámetro (recibe una COPIA)")
 	fmt.Println("3. func nombre(p tipo) tipo    → función con parámetro y retorno")
 	fmt.Println("4. nombreFuncion(argumento)    → llamar una función")
 	fmt.Println("5. variable := nombreFuncion() → capturar el valor retornado")

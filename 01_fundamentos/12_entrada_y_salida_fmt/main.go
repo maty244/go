@@ -51,7 +51,9 @@ func main() {
 	fmt.Printf("Hexadecimal: %X\n", 255)       // %X → hex mayúscula
 	fmt.Printf("Científico: %e\n", 123456.789) // %e → notación científica
 	fmt.Printf("Carácter: %c\n", 65)           // %c → caracter Unicode
-	fmt.Printf("Con comillas: %q\n", nombre)   // %q → string con comillas
+	fmt.Printf("Con comillas: %q\n", nombre)   // %q → string escapado con comillas
+	fmt.Printf("Sintaxis Go: %#v\n", nombre)   // %#v → representación en código Go
+	fmt.Printf("Porcentaje: 100%%\n")          // %% → imprime un signo % literal
 
 	// Alineación y relleno
 	fmt.Println("\n=== Alineación con Printf ===")
@@ -91,7 +93,10 @@ func main() {
 	url := fmt.Sprintf("https://api.ejemplo.com/usuarios/%d/perfil", 42)
 	fmt.Println("URL generada:", url)
 
-	archivoLog := fmt.Sprintf("log_%s_%d.txt", "2026-01-15", 001)
+	// Usamos %03d para rellenar con ceros a 3 dígitos ("001").
+	// OJO: nunca escribas 001 o 010 como literal entero pensando que formatea ceros,
+	// porque un número que empieza con 0 en Go se interpreta en base OCTAL (010 == 8).
+	archivoLog := fmt.Sprintf("log_%s_%03d.txt", "2026-01-15", 1)
 	fmt.Println("Archivo:", archivoLog)
 
 	// ─────────────────────────────────────────────────────────
@@ -158,6 +163,10 @@ func main() {
 		linea := scanner.Text()
 		fmt.Printf("Línea %d: '%s'\n", lineaNum, linea)
 		lineaNum++
+	}
+	// Buena práctica: verificar siempre si el bucle terminó por fin de entrada (EOF) o por error
+	if err := scanner.Err(); err != nil {
+		fmt.Fprintln(os.Stderr, "Error leyendo entrada:", err)
 	}
 
 	/*

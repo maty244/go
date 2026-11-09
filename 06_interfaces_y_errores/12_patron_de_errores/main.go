@@ -76,6 +76,9 @@ func buscarProducto(catalogo []Producto, id int) (Producto, error) {
 }
 
 func comprar(p Producto, cantidad int) (float64, error) {
+	if p.ID <= 0 || p.Nombre == "" {
+		return 0, ErrProductoInvalido
+	}
 	if cantidad <= 0 {
 		return 0, ErrorCompra{
 			Operacion: "comprar",

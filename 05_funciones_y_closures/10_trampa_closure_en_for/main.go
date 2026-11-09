@@ -18,9 +18,9 @@ import "fmt"
 // "una copia por vuelta". Entonces todos los closures terminaban
 // viendo el ÚLTIMO valor que tomó la variable.
 //
-// DESDE Go 1.22 (mediados 2024): cada vuelta del for crea una
-// variable NUEVA. El bug de abajo simplemente no ocurre más.
-// Este repo usa Go 1.26, así que en TU código esto ya está resuelto.
+// DESDE Go 1.22: las variables DECLARADAS por el for (con :=) son nuevas
+// en cada iteración. Si usás = sobre una variable declarada afuera, la
+// variable sigue siendo compartida. Este archivo demuestra las dos formas.
 
 func main() {
 	// ─────────────────────────────────────────────────────────
@@ -68,6 +68,14 @@ func main() {
 	}
 	// Salida en Go 1.26: Hola, Ana / Hola, Carlos / Hola, Sofía
 
+	// = REASIGNA una variable existente; no crea una por iteración.
+	// Los closures se ejecutan después del loop y todos ven su valor final.
+	fmt.Println("\n=== Variable exterior: la captura sigue compartida ===")
+	for _, f := range capturarExterior() {
+		fmt.Println("  i compartida =", f()) // 3, 3, 3
+	}
+	fmt.Println("  := en el for declara; = en el for reutiliza")
+
 	// ─────────────────────────────────────────────────────────
 	// CÓMO SE SOLUCIONABA ANTES (por si lo ves en código viejo)
 	// ─────────────────────────────────────────────────────────
@@ -103,7 +111,20 @@ func main() {
 	fmt.Println("\n=== RESUMEN ===")
 	fmt.Println("  Antes de Go 1.22  → la variable del for/range era UNA sola,")
 	fmt.Println("                       compartida por todos los closures del loop")
-	fmt.Println("  Desde Go 1.22     → cada vuelta tiene su PROPIA variable")
+	fmt.Println("  Desde Go 1.22     → las variables DECLARADAS por el loop son nuevas por vuelta")
+	fmt.Println("  Variable exterior → con = sigue compartida; todos ven el valor final")
 	fmt.Println("  En Go 1.26 (acá)  → el bug clásico ya NO ocurre por defecto")
 	fmt.Println("  Igual conocelo    → vas a verlo en código y tutoriales viejos")
+}
+
+// Cada función captura la misma variable i, no el número que tenía al crearla.
+// Que i siga viva después de retornar es parte del comportamiento de closures;
+// no necesitás administrar manualmente su memoria.
+func capturarExterior() []func() int {
+	var funciones []func() int
+	var i int
+	for i = 0; i < 3; i++ {
+		funciones = append(funciones, func() int { return i })
+	}
+	return funciones
 }

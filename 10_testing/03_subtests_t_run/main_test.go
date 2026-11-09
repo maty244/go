@@ -31,6 +31,10 @@ func TestNormalizarNombre(t *testing.T) {
 	for _, c := range casos {
 		// t.Run crea un subtest con el nombre del caso. El "t"
 		// que recibe la función interna es propio de ESE subtest.
+		// Nota: si los subtests son independientes y lentos, podés
+		// llamar a t.Parallel() adentro; desde Go 1.22+ la variable
+		// del for ("c") es nueva en cada iteración, así que es seguro
+		// capturarla directamente sin hacer "c := c".
 		t.Run(c.nombre, func(t *testing.T) {
 			resultado := NormalizarNombre(c.entrada)
 			if resultado != c.esperado {
@@ -49,6 +53,7 @@ func TestNormalizarNombre(t *testing.T) {
 // === RUN   TestNormalizarNombre/nombre_todo_en_mayúsculas
 // === RUN   TestNormalizarNombre/varias_palabras
 // === RUN   TestNormalizarNombre/espacios_de_más
+// === RUN   TestNormalizarNombre/unicode_no_se_corta
 // === RUN   TestNormalizarNombre/nombre_vacio
 // --- PASS: TestNormalizarNombre (0.00s)
 //     --- PASS: TestNormalizarNombre/nombre_simple_en_minúsculas (0.00s)

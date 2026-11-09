@@ -76,7 +76,11 @@ func procesarCompra(p Producto, cantidad int) (float64, error) {
 	return total, nil
 }
 
-// calcularEstadisticas retorna tres valores: suma, promedio, cantidad
+// calcularEstadisticas retorna tres valores nombrados: suma, promedio, cantidad.
+// Los retornos nombrados se inicializan automáticamente en su zero value (0.0, 0.0, 0)
+// y sirven para documentar qué representa cada retorno en la firma.
+// Nota de estilo: el "naked return" (return sin argumentos) es válido, pero en
+// funciones largas es más legible escribir "return suma, promedio, cantidad" explícito.
 func calcularEstadisticas(precios []float64) (suma float64, promedio float64, cantidad int) {
 	cantidad = len(precios)
 	if cantidad == 0 {
@@ -86,7 +90,7 @@ func calcularEstadisticas(precios []float64) (suma float64, promedio float64, ca
 		suma += p
 	}
 	promedio = suma / float64(cantidad)
-	return // naked return, retorna los valores nombrados
+	return suma, promedio, cantidad
 }
 
 func main() {

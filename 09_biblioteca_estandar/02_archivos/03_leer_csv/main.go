@@ -63,6 +63,13 @@ func main() {
 	}
 
 	writer.Flush() // igual que bufio.Writer (tema 02): obligatorio al final
+	// Detalle importante de csv.Writer: a diferencia de bufio.Writer,
+	// Flush() no devuelve error directo; se consulta con writer.Error().
+	if err := writer.Error(); err != nil {
+		fmt.Println("Error escribiendo CSV:", err)
+		archivo.Close()
+		return
+	}
 	archivo.Close()
 
 	datosCSV, _ := os.ReadFile(ruta)
@@ -82,7 +89,9 @@ func main() {
 
 	reader := csv.NewReader(archivoLectura)
 
-	// ReadAll carga todas las filas de una vez, cada una como []string
+	// ReadAll carga todas las filas de una vez, cada una como []string.
+	// (Si el CSV fuera gigante, podés llamar a reader.Read() en un for
+	// hasta recibir io.EOF para procesar fila por fila sin usar memoria extra).
 	filas, err := reader.ReadAll()
 	if err != nil {
 		fmt.Println("Error leyendo CSV:", err)
@@ -138,8 +147,8 @@ func main() {
 	fmt.Println("\n=== RESUMEN ===")
 	fmt.Println("  csv.NewWriter(archivo)  → escribir filas ([]string) a CSV")
 	fmt.Println("  writer.Write(fila)      → una fila por llamada")
-	fmt.Println("  writer.Flush()          → obligatorio al final")
+	fmt.Println("  writer.Flush()/.Error() → grabar lo pendiente y verificar errores")
 	fmt.Println("  csv.NewReader(archivo)  → leer CSV")
-	fmt.Println("  reader.ReadAll()        → todas las filas como [][]string")
+	fmt.Println("  reader.ReadAll()/Read() → todas las filas ([][]string) o fila por fila")
 	fmt.Println("  Ventaja sobre Split     → maneja comas y comillas dentro de un campo")
 }

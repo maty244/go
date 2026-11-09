@@ -12,4 +12,7 @@ func TestFizzBuzz(t *testing.T) {
 	if obtenido := FizzBuzz(15); !slices.Equal(obtenido, esperado) {
 		t.Fatalf("obtenido=%v", obtenido)
 	}
+	if vacio := FizzBuzz(0); len(vacio) != 0 {
+		t.Fatalf("para límite 0 se esperaba vacío, obtenido=%v", vacio)
+	}
 }

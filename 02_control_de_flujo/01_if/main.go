@@ -25,16 +25,21 @@ func main() {
 		fmt.Println("Tenés fiebre, quedate en casa")
 	}
 
-	// Las llaves van en la MISMA línea que el if (convención de Go)
-	// Esto NO compila:
-	// if temperatura > 37.5
-	// {                      ← ERROR: llave debe ir en la misma línea
-	//     fmt.Println("fiebre")
-	// }
+	// Las llaves { y el } else { van en la MISMA línea (regla del lenguaje, no solo estilo).
+	// ¿Por qué? Porque el compilador de Go inserta puntos y comas (;) automáticamente
+	// al final de una línea si puede cerrar una sentencia. Si bajaras la llave:
+	//   if temperatura > 37.5   ← Go inserta un ';' acá y rompe el if
+	//   {
+	//       fmt.Println("fiebre")
+	//   }
+	// Lo mismo pasa con el else: debe escribirse "} else {" en la misma línea.
 
 	// ─────────────────────────────────────────────────────────
-	// IF / ELSE
+	// IF / ELSE (y por qué NO existe el operador ternario ?:)
 	// ─────────────────────────────────────────────────────────
+	// Nota: En Go NO existe el operador ternario `condicion ? valor1 : valor2`.
+	// Los creadores de Go lo omitieron a propósito porque suele anidarse y
+	// volver el código difícil de leer. En Go siempre se usa if / else:
 	edad := 17
 
 	fmt.Println("\n=== if / else ===")
@@ -132,14 +137,14 @@ func main() {
 	usuario := "admin"
 	contraseña := "1234"
 	intentosFallidos := 2
-	const MAX_INTENTOS = 3
+	const maxIntentos = 3
 
 	// Condición compleja con && y ||
 	if (usuario == "admin" || usuario == "root") &&
 		contraseña != "" &&
-		intentosFallidos < MAX_INTENTOS {
+		intentosFallidos < maxIntentos {
 		fmt.Println("Acceso concedido")
-	} else if intentosFallidos >= MAX_INTENTOS {
+	} else if intentosFallidos >= maxIntentos {
 		fmt.Println("Cuenta bloqueada por demasiados intentos")
 	} else {
 		fmt.Println("Credenciales inválidas")

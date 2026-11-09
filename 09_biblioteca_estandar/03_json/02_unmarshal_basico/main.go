@@ -78,7 +78,7 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	// Unmarshal es tolerante: si el JSON trae MÁS campos de los
 	// que tiene tu struct, simplemente los descarta (a menos que
-	// uses un decoder estricto, que no vemos en esta introducción).
+	// uses un decoder estricto con json.NewDecoder(r).DisallowUnknownFields()).
 
 	fmt.Println("\n=== Campos extra en el JSON se ignoran ===")
 

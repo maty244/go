@@ -46,13 +46,17 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	// COMPATIBILIDAD: Add + Done
 	// ─────────────────────────────────────────────────────────
-	// WaitGroup no debe copiarse después de usarse. En la forma antigua, Add
-	// ocurre antes de lanzar la goroutine y cada tarea garantiza Done con defer.
+	// WaitGroup no debe copiarse después de usarse (si lo pasás a una función,
+	// pasalo siempre por puntero *sync.WaitGroup).
+	// En la forma antigua, Add(1) SIEMPRE debe ocurrir ANTES de lanzar `go func()`
+	// (si pusieras Add(1) adentro de la goroutine, wg.Wait() podría ejecutarse
+	// antes de que la goroutine llegue a sumar 1). `wg.Go` hace ese Add(1) previo
+	// y el Done() final automáticamente por vos.
 	fmt.Println("\n=== Forma anterior: Add + Done ===")
 
 	var wg2 sync.WaitGroup
 	tareas := 5
-	wg2.Add(tareas) // equivalente a llamar Add(1) cinco veces
+	wg2.Add(tareas) // equivalente a llamar Add(1) cinco veces ANTES de lanzar las goroutines
 
 	for i := 1; i <= tareas; i++ {
 		go func(n int) {

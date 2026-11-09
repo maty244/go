@@ -83,7 +83,7 @@ func main() {
 	// Abusar de any hace que pierdas las ventajas del compilador
 	// (errores que antes se detectaban en compilación, ahora
 	// solo aparecen en tiempo de ejecución). Usalo con moderación;
-	// en el próximo tema (Generics) vas a ver una alternativa
+	// en 08_generics_e_iteradores vas a ver una alternativa
 	// más segura para muchos casos.
 
 	// ─────────────────────────────────────────────────────────

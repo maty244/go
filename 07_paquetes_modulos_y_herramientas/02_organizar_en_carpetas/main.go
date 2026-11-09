@@ -53,9 +53,20 @@ func main() {
 	//     calcular precios, sin copiar y pegar código
 	//   - Tiene una responsabilidad clara y un nombre que la describe
 
+	// ─────────────────────────────────────────────────────────
+	// DOS REGLAS DE ORO DE LOS PAQUETES EN GO
+	// ─────────────────────────────────────────────────────────
+	// 1. Prohibidos los imports circulares: si el paquete A importa al
+	//    paquete B, entonces B NO puede importar a A (el compilador falla
+	//    con "import cycle not allowed"). Esto fuerza un diseño limpio.
+	// 2. Carpeta especial "internal/": cualquier paquete dentro de una
+	//    carpeta llamada "internal" solo puede ser importado por código
+	//    que viva dentro del árbol padre de ese "internal".
+
 	fmt.Println("\n=== RESUMEN ===")
 	fmt.Println("  Una carpeta = un paquete (con su propio \"package nombre\")")
 	fmt.Println("  Se importa con: \"nombreDelModulo/ruta/de/carpetas\"")
 	fmt.Println("  Se usa como:    nombrePaquete.Funcion(...)")
+	fmt.Println("  Sin ciclos:     Go prohíbe imports circulares (A ⇄ B)")
 	fmt.Println("  Ventaja:        separar responsabilidades y poder reusar código")
 }

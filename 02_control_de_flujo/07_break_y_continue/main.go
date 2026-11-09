@@ -108,6 +108,12 @@ func main() {
 	// =========================================================
 	// Salta el resto del cuerpo de la iteración actual
 	// y va directo a la siguiente iteración.
+	//
+	// DETALLE CLAVE:
+	// - En un `for i := 0; i < 8; i++`, hacer `continue` SÍ ejecuta el `i++` (post)
+	//   antes de volver a evaluar `i < 8`.
+	// - En cambio, en un `for i < 8` (tipo while), si ponés `continue` ANTES de
+	//   incrementar `i`, `i` nunca cambia y creás un bucle infinito.
 
 	// ─────────────────────────────────────────────────────────
 	// CONTINUE BÁSICO
@@ -116,7 +122,7 @@ func main() {
 
 	for i := 0; i < 8; i++ {
 		if i%2 == 0 {
-			continue // salta los pares, no ejecuta el Println de abajo
+			continue // salta los pares, ejecuta i++ y pasa a la siguiente vuelta
 		}
 		fmt.Println("Impar:", i)
 	}
@@ -240,19 +246,21 @@ func main() {
 	}
 
 	// ─────────────────────────────────────────────────────────
-	// RESUMEN VISUAL
+	// RESUMEN VISUAL: continue vs break vs return
 	// ─────────────────────────────────────────────────────────
-	fmt.Println("\n=== Resumen ===")
-	fmt.Println("break:")
-	fmt.Println("  - Sale COMPLETAMENTE del bucle más cercano")
-	fmt.Println("  - El código DESPUÉS del for se ejecuta")
-	fmt.Println("  - También sale de un switch (pero no de un for exterior)")
-	fmt.Println()
+	fmt.Println("\n=== Resumen: continue vs break vs return ===")
 	fmt.Println("continue:")
-	fmt.Println("  - Salta al SIGUIENTE ciclo del bucle")
-	fmt.Println("  - El código DESPUÉS del continue en ese ciclo NO se ejecuta")
-	fmt.Println("  - Útil para filtrar, saltar datos inválidos")
+	fmt.Println("  - Salta al SIGUIENTE ciclo del bucle más cercano")
+	fmt.Println("  - El código debajo del continue en esa vuelta NO se ejecuta")
+	fmt.Println("  - En `for init; cond; post`, ejecuta `post` antes de la siguiente vuelta")
 	fmt.Println()
-	fmt.Println("Ambos afectan SOLO el bucle más cercano.")
-	fmt.Println("Para afectar bucles externos: usar labels (siguiente archivo).")
+	fmt.Println("break:")
+	fmt.Println("  - Sale COMPLETAMENTE del bucle (o switch) más cercano")
+	fmt.Println("  - La función SIGUE ejecutando el código que está después del for")
+	fmt.Println()
+	fmt.Println("return:")
+	fmt.Println("  - Sale del bucle Y TERMINA TODA LA FUNCIÓN inmediatamente")
+	fmt.Println("  - Nada de lo que esté después del for en esa función se ejecuta")
+	fmt.Println()
+	fmt.Println("Para afectar bucles externos con break/continue: usar labels (ver 08_labels).")
 }

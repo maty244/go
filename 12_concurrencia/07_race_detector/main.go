@@ -49,7 +49,7 @@ func main() {
 	}
 	wg.Wait()
 
-	fmt.Println("Esperado: 1000.00 | Obtenido:", saldo.monto)
+	fmt.Println("Esperado: 1000 centavos | Obtenido:", saldo.monto)
 
 	fmt.Println("\n=== Cómo detectar la carrera con -race ===")
 	fmt.Println("  go run -race ./12_concurrencia/07_race_detector/")

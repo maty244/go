@@ -51,11 +51,17 @@ func formatearEnteroConComas(n int) string {
 	return formatearEnteroConComas(n/1000) + fmt.Sprintf(",%03d", n%1000)
 }
 
-// formatearPrecio retorna precio formateado para tabla
+// formatearPrecio retorna precio formateado para tabla (redondeando al centavo más cercano)
 func formatearPrecio(precio float64) string {
-	entero := int(precio)
-	centavos := int(math.Round((precio - float64(entero)) * 100))
-	return fmt.Sprintf("$%s.%02d", formatearEnteroConComas(entero), centavos)
+	signo := ""
+	if precio < 0 {
+		signo = "-"
+		precio = -precio
+	}
+	totalCentavos := int(math.Round(precio * 100))
+	entero := totalCentavos / 100
+	centavos := totalCentavos % 100
+	return fmt.Sprintf("%s$%s.%02d", signo, formatearEnteroConComas(entero), centavos)
 }
 
 // ─────────────────────────────────────────────────────────
@@ -65,11 +71,10 @@ func formatearPrecio(precio float64) string {
 //   - $0      - $999:    0% descuento
 //   - $1,000  - $4,999:  5% descuento
 //   - $5,000  - $9,999: 10% descuento
-//   - $10,000+:         15% descuento
+//   - $10,000+:         15% descuento base
 //
-// El descuento aplica recursivamente:
-//   Si tenés 3 items y el total > $10,000, aplicamos 15%.
-//   Pero también podemos aplicar descuentos adicionales por cada $5,000 extra.
+// El descuento adicional aplica recursivamente:
+//   Por cada $5,000 completos sobre los primeros $10,000 → +1% adicional (hasta +10% extra, tope total 25%).
 
 func calcularDescuentoRecursivo(total float64) float64 {
 	switch {
@@ -80,29 +85,22 @@ func calcularDescuentoRecursivo(total float64) float64 {
 	case total < 10000:
 		return 0.10 // CASO BASE: 10%
 	default:
-		// CASO RECURSIVO: 15% base + descuento adicional por cada $10,000 extra
-		// Por cada $10,000 sobre los primeros $10,000 → +1% adicional (máximo 25%)
+		// CASO RECURSIVO: 15% base + 1% adicional por cada $5,000 sobre $10,000 (máximo +10% extra = 25% total)
 		descuentoBase := 0.15
 		extra := total - 10000
 		descuentoAdicional := calcularDescuentoExtra(extra, 0.01, 0.10)
-		descuento := descuentoBase + descuentoAdicional
-		if descuento > 0.25 {
-			return 0.25 // tope máximo
-		}
-		return descuento
+		return descuentoBase + descuentoAdicional
 	}
 }
 
-// calcularDescuentoExtra calcula descuento adicional de forma recursiva
-func calcularDescuentoExtra(montoExtra, incremento, tope float64) float64 {
-	if montoExtra <= 0 || incremento >= tope { // CASO BASE
+// calcularDescuentoExtra suma `incremento` por cada tramo de $5,000 sin superar `topeRestante`
+func calcularDescuentoExtra(montoExtra, incremento, topeRestante float64) float64 {
+	// Usamos 1e-9 para evitar imprecisiones de punto flotante al restar 0.01 diez veces
+	if montoExtra < 5000 || topeRestante < incremento-1e-9 { // CASO BASE
 		return 0
 	}
-	// Por cada $5,000 extra → +incremento
-	if montoExtra < 5000 {
-		return 0
-	}
-	return incremento + calcularDescuentoExtra(montoExtra-5000, incremento, tope)
+	// Por cada $5,000 extra → +incremento, y reducimos el tope restante
+	return incremento + calcularDescuentoExtra(montoExtra-5000, incremento, topeRestante-incremento)
 }
 
 // ─────────────────────────────────────────────────────────

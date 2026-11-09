@@ -35,6 +35,11 @@ func main() {
 	}
 	fmt.Println("Stock después de vender 2:", notebook.Stock())
 
+	if err := notebook.Vender(2); err != nil {
+		fmt.Println("Error:", err)
+	}
+	fmt.Println("Stock después de vender 2 más:", notebook.Stock())
+
 	// notebook.necesitaReponer()  ← tampoco compilaría: es privada
 	// catalogo.margenGanancia     ← tampoco: es privada del paquete
 

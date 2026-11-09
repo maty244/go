@@ -5,9 +5,13 @@ import "fmt"
 // =========================================================
 // PUNTEROS: OPERADORES * Y &
 // =========================================================
-// Un puntero es una variable que GUARDA UNA DIRECCIÓN de memoria.
-// En vez de guardar un valor (42, "hola"), guarda una dirección
-// que APUNTA al lugar donde vive ese valor.
+// Un valor de tipo puntero identifica una variable a la que podemos acceder.
+// Una variable p de tipo *int guarda ese puntero, no el int de su destino.
+// Hay que distinguir DOS variables: la que guarda el puntero y la apuntada.
+//
+// Antes de ejecutar: abrí PUNTEROS_DESDE_CERO.md en la carpeta de esta etapa.
+// Tiene diagramas y tablas del estado de cada variable. No memorices 0xc...:
+// cambian entre ejecuciones y no indican qué valor hay guardado en el destino.
 //
 // Dos operadores fundamentales:
 //
@@ -28,6 +32,10 @@ func main() {
 	fmt.Println("╔══════════════════════════════════╗")
 	fmt.Println("║       OPERADORES * Y &            ║")
 	fmt.Println("╚══════════════════════════════════╝")
+
+	// Cada ejemplo usa sus propias variables: no necesitás recordar el estado
+	// de un ejemplo para entender el siguiente.
+	variablesYTipos()
 
 	// ─────────────────────────────────────────────────────────
 	// OPERADOR & : obtener la dirección
@@ -56,11 +64,9 @@ func main() {
 	fmt.Printf("punteroEdad   = %p  (es una dirección)\n", punteroEdad)
 	fmt.Printf("*punteroEdad  = %d  (el valor EN esa dirección)\n", valorApuntado)
 
-	// Diagrama mental:
-	// edad          → [ 0xc000014080 ] → [ 25 ]
-	// punteroEdad   → [ 0xc000014090 ] → [ 0xc000014080 ]
-	//                                         ↓
-	//                                    [ 25 ]  (es lo que da *punteroEdad)
+	// Diagrama: [punteroEdad: dirección de edad] ──→ [edad: 25]
+	// La caja edad CONTIENE 25, no una dirección hacia otra caja con el 25.
+	// &punteroEdad es la dirección de la propia caja que guarda el puntero.
 
 	// ─────────────────────────────────────────────────────────
 	// MODIFICAR EL ORIGINAL A TRAVÉS DEL PUNTERO
@@ -77,6 +83,9 @@ func main() {
 
 	fmt.Printf("n después: %d  (modificado a través del puntero!)\n", n)
 	fmt.Printf("*p después: %d\n", *p) // apunta al mismo lugar, ve el nuevo valor
+
+	copiarValorYCompartirDestino()
+	compararPunterosYValores()
 
 	// ─────────────────────────────────────────────────────────
 	// DECLARAR UN PUNTERO
@@ -101,8 +110,14 @@ func main() {
 	*pNew = 77
 	fmt.Printf("pNew := new(int) → %p → valor: %d\n", pNew, *pNew)
 
-	pDirecto := new(42) // Go 1.26+: equivale a las dos líneas de arriba en una
+	pDirecto := new(42) // Go 1.26+: crea OTRO int, inicialmente 42 (no 77)
 	fmt.Printf("pDirecto := new(42) → %p → valor: %d\n", pDirecto, *pDirecto)
+	// new(x) usa el valor actual de x como inicializador, no apunta a x.
+	// &x sí apunta a x. La diferencia se ve al cambiar x después.
+	porDireccion := &x
+	porCopia := new(x)
+	x = 100
+	fmt.Printf("x=%d | *&x=%d | *new(x anterior)=%d\n", x, *porDireccion, *porCopia) // 100, 100, 42
 
 	// Forma 4: & a un literal de struct (muy común en Go)
 	type Punto struct{ X, Y int }
@@ -127,21 +142,13 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== Punteros en funciones ===")
 
-	saldo := 1000.0
-	fmt.Printf("Saldo antes:  $%.2f\n", saldo)
-
-	depositar(&saldo, 500)
-	fmt.Printf("Saldo después de depositar $500:  $%.2f\n", saldo)
-
-	if err := retirar(&saldo, 200); err != nil {
-		fmt.Println("Error:", err)
-	} else {
-		fmt.Printf("Saldo después de retirar $200:   $%.2f\n", saldo)
-	}
-
-	if err := retirar(&saldo, 5000); err != nil {
-		fmt.Println("Error al retirar $5000:", err)
-	}
+	contador := 10
+	fmt.Println("contador antes:", contador)
+	incrementar(&contador)                     // el argumento es *int; el parámetro recibe su COPIA
+	fmt.Println("contador después:", contador) // 11
+	// La dirección copiada permite llegar al mismo contador. No existe otra
+	// modalidad de paso de argumentos: incluso el puntero se pasa por valor.
+	fmt.Println("Para distinguir cambiar *p de cambiar p, seguí 15_punteros_en_funciones.")
 
 	// ─────────────────────────────────────────────────────────
 	// PUNTERO A PUNTERO (raro pero existe)
@@ -158,7 +165,10 @@ func main() {
 
 	**ppv = 999 // modifica a través de dos niveles
 	fmt.Printf("valor después: %d\n", valor)
-	// En la práctica, **T se usa muy poco. Puede confundir.
+	// ppv apunta a la VARIABLE pv. *ppv es pv; **ppv es valor.
+	// Si asignamos *ppv = &otro, cambiamos pv, no el int que apuntaba antes.
+	// La lección 15 compara esto con retornar el nuevo puntero, que suele
+	// ser una interfaz más simple para quien llama a la función.
 
 	// ─────────────────────────────────────────────────────────
 	// ACCESO A CAMPOS DE STRUCT A TRAVÉS DE PUNTERO
@@ -195,14 +205,51 @@ func main() {
 	fmt.Println("  p.Campo      → Go lo transforma en (*p).Campo")
 }
 
-func depositar(saldo *float64, monto float64) {
-	*saldo += monto // modifica el saldo original
+// Premisa: p no es nil. El llamador de este ejemplo pasa &contador.
+func incrementar(p *int) {
+	*p = *p + 1 // leer el int del destino, sumar uno y escribir en ese destino
 }
 
-func retirar(saldo *float64, monto float64) error {
-	if *saldo < monto {
-		return fmt.Errorf("saldo insuficiente: tenés $%.2f, querés retirar $%.2f", *saldo, monto)
-	}
-	*saldo -= monto
-	return nil
+func variablesYTipos() {
+	fmt.Println("\n=== 0. Leer cada expresión antes de combinar operadores ===")
+	n := 10 // n es una variable int; su contenido es el número 10
+	p := &n // p es OTRA variable, *int; su contenido identifica a n
+	fmt.Printf("n:  tipo=%T valor=%d\n", n, n)
+	fmt.Printf("&n: tipo=%T dirección=%p\n", &n, &n)
+	fmt.Printf("p:  tipo=%T destino=%p\n", p, p)
+	fmt.Printf("*p: tipo=%T valor=%d\n", *p, *p)
+	fmt.Printf("&p: tipo=%T dirección de la variable p=%p\n", &p, &p)
+	fmt.Println("p == &n:", p == &n) // true: identifican a la misma variable
+	// * en "var p *int" forma un TIPO. * en "*p" es una EXPRESIÓN.
+	// En "2 * 3" significa multiplicación; el contexto determina el sentido.
+}
+
+func copiarValorYCompartirDestino() {
+	fmt.Println("\n=== Copiar un int, copiar un puntero y reapuntar ===")
+	n := 10
+	p := &n
+	copia := *p // leer *p da 10; asignarlo copia el int a otra variable
+	q := p      // copiar p copia el puntero: ambos pueden acceder a n
+	*p = 20
+	fmt.Printf("tras *p=20: n=%d copia=%d *q=%d\n", n, copia, *q)    // 20, 10, 20
+	copia = 30                                                       // no cambia n, p ni q
+	fmt.Printf("tras copia=30: n=%d copia=%d *p=%d\n", n, copia, *p) // 20, 30, 20
+
+	otro := 50
+	p = &otro                                                                 // cambiar EL PUNTERO p no cambia q ni modifica n
+	*p = 60                                                                   // ahora el destino de p es otro; q sigue apuntando a n
+	fmt.Printf("tras reapuntar: n=%d otro=%d *p=%d *q=%d\n", n, otro, *p, *q) // 20, 60, 60, 20
+	fmt.Println("¿p y q siguen apuntando a la misma variable?", p == q)       // false
+}
+
+func compararPunterosYValores() {
+	fmt.Println("\n=== Igual contenido no implica igual variable ===")
+	a, b := 7, 7 // dos variables int distintas con el mismo contenido
+	pa, pb := &a, &b
+	fmt.Println("a == b:", a == b)         // true: comparamos los ints
+	fmt.Println("pa == pb:", pa == pb)     // false: comparamos sus destinos
+	fmt.Println("*pa == *pb:", *pa == *pb) // true: leemos y comparamos los ints
+	// No se puede escribir pa == 7: *int e int son tipos distintos.
+	// Esta comparación usa ints: los objetos de tamaño cero tienen reglas
+	// especiales de identidad. No generalices este ejemplo a &struct{}{}.
 }

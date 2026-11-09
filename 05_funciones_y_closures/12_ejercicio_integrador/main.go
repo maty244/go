@@ -41,7 +41,7 @@ func descuentoPorCantidad(minItems int, porcentaje float64) ReglaDescuento {
 // ─────────────────────────────────────────────────────────
 // CAJA REGISTRADORA: closures con estado compartido
 // ─────────────────────────────────────────────────────────
-// Sigue el patrón del tema 03: varias funciones que comparten
+// Sigue el patrón de 09_contador_con_estado: varias funciones que comparten
 // las mismas variables capturadas, simulando un "objeto" sin
 // necesidad de un struct con métodos.
 

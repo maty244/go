@@ -5,7 +5,7 @@ package reto
 import "testing"
 
 func TestEsPalindromo(t *testing.T) {
-	for _, texto := range []string{"Anita lava la tina", "Añá"} {
+	for _, texto := range []string{"Anita lava la tina", "Aña", "Áñá"} {
 		if !EsPalindromo(texto) {
 			t.Errorf("%q debería ser palíndromo", texto)
 		}

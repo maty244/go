@@ -85,13 +85,12 @@ func main() {
 	// os.Args te da el texto CRUDO. Para algo más prolijo como
 	// --nombre=Notebook o -v (banderas con nombre), la librería
 	// estándar trae el paquete "flag", que parsea todo eso solo.
-	// No lo cubrimos acá, pero ahora sabés que existe si tu CLI
-	// crece en complejidad.
+	// Vas a construir una CLI completa y testeable en 11_proyecto_cli/.
 
 	fmt.Println("\n=== RESUMEN ===")
 	fmt.Println("  os.Args         → []string con TODOS los argumentos")
 	fmt.Println("  os.Args[0]      → el programa mismo, no un dato del usuario")
 	fmt.Println("  os.Args[1:]     → los argumentos 'reales'")
 	fmt.Println("  Patrón CLI      → primer argumento = comando, resto = datos")
-	fmt.Println("  Para flags -x   → ver el paquete \"flag\" de la librería estándar")
+	fmt.Println("  Para flags -x   → paquete \"flag\" (y ver 11_proyecto_cli/)")
 }

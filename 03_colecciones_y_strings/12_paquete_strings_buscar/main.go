@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -17,6 +18,7 @@ import (
 //   strings.HasSuffix(s, suf)   → ¿s termina con suf?      (bool)
 //   strings.Index(s, sub)       → ¿dónde está sub?         (int, -1 si no está)
 //   strings.LastIndex(s, sub)   → ¿dónde está la última?   (int)
+//   strings.Cut(s, sep)         → partir en (antes, después, encontrado)
 //   strings.Count(s, sub)       → ¿cuántas veces aparece?  (int)
 //   strings.EqualFold(a, b)     → ¿iguales sin importar mayúsculas? (bool)
 //
@@ -66,10 +68,10 @@ func main() {
 	}
 
 	// ─────────────────────────────────────────────────────────
-	// Index / LastIndex: ¿en qué posición está?
+	// Index / LastIndex y strings.Cut
 	// ─────────────────────────────────────────────────────────
-	// Devuelven el índice del BYTE donde empieza la primera
-	// (o última) aparición. Si no está, devuelven -1.
+	// Index y LastIndex devuelven el índice del BYTE donde empieza
+	// la primera (o última) aparición. Si no está, devuelven -1.
 	// Ese -1 se usa como "no encontrado" (no hay error ni nil).
 
 	fmt.Println("\n=== Index / LastIndex ===")
@@ -84,11 +86,16 @@ func main() {
 		fmt.Printf(`"siempre" encontrado en el byte %d`+"\n", i)
 	}
 
-	// Uso práctico: separar usuario y dominio de un email
+	// Uso práctico: separar usuario y dominio de un email.
+	// En vez de usar Index + slicing manual (email[:arroba], email[arroba+1:]),
+	// en Go moderno usamos strings.Cut(s, sep), que devuelve (antes, después, ok)
+	// sin riesgo de panic si el separador no está:
+	fmt.Println("\n=== strings.Cut (separar en el primer separador) ===")
 	email := "matias@gmail.com"
-	arroba := strings.Index(email, "@")
-	fmt.Println("usuario:", email[:arroba])   // matias
-	fmt.Println("dominio:", email[arroba+1:]) // gmail.com
+	if usuario, dominio, ok := strings.Cut(email, "@"); ok {
+		fmt.Println("usuario:", usuario) // matias
+		fmt.Println("dominio:", dominio) // gmail.com
+	}
 
 	// ─────────────────────────────────────────────────────────
 	// Count: ¿cuántas veces aparece?
@@ -114,6 +121,20 @@ func main() {
 	fmt.Println(`EqualFold("Go", "GO")     →`, strings.EqualFold("Go", "GO"))      // true
 
 	// ─────────────────────────────────────────────────────────
+	// ¿Y SI NECESITO UN PATRÓN COMPLEJO? PAQUETE "regexp"
+	// ─────────────────────────────────────────────────────────
+	// Regla práctica: usá siempre el paquete "strings" cuando te alcance
+	// (Contains, HasPrefix, Cut), porque es mucho más rápido y fácil de leer.
+	// Si necesitás buscar patrones variables (ej: códigos postales, fechas,
+	// números dentro de un texto), la biblioteca estándar incluye "regexp"
+	// (garantizado en tiempo lineal O(n) gracias a su motor RE2).
+	fmt.Println("\n=== Paquete regexp (expresiones regulares) ===")
+	reCodigo := regexp.MustCompile(`[A-Z]{3}-[0-9]{3}`) // compila una sola vez
+	logPedido := "Envíos pendientes: ARG-104, URU-250 y CHL-999 listos."
+	fmt.Println("¿Hay algún código? (MatchString):", reCodigo.MatchString(logPedido))
+	fmt.Println("Todos los códigos (FindAllString):", reCodigo.FindAllString(logPedido, -1))
+
+	// ─────────────────────────────────────────────────────────
 	// RESUMEN
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== RESUMEN ===")
@@ -122,7 +143,9 @@ func main() {
 	fmt.Println("  HasSuffix(s, suf)  → bool: ¿termina con...?")
 	fmt.Println("  Index(s, sub)      → int: posición o -1")
 	fmt.Println("  LastIndex(s, sub)  → int: última posición o -1")
+	fmt.Println("  Cut(s, sep)        → (antes, después, ok): partir en el 1er sep")
 	fmt.Println("  Count(s, sub)      → int: cantidad de apariciones")
 	fmt.Println("  EqualFold(a, b)    → bool: iguales ignorando mayúsculas")
+	fmt.Println("  regexp.MustCompile → para patrones complejos cuando strings no alcanza")
 	fmt.Println("  Todas case-sensitive, salvo EqualFold.")
 }

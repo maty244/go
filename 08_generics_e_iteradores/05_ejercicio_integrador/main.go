@@ -57,6 +57,10 @@ func Reducir[T, R any](lista []T, inicial R, combinar func(R, T) R) R {
 // una función clave, usando cmp.Ordered para la comparación
 // ─────────────────────────────────────────────────────────
 func MaximoPor[T any, K cmp.Ordered](lista []T, clave func(T) K) T {
+	if len(lista) == 0 {
+		var cero T
+		return cero
+	}
 	mejor := lista[0]
 	mejorClave := clave(mejor)
 	for _, v := range lista[1:] {

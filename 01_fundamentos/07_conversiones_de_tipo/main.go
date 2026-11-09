@@ -103,18 +103,21 @@ func main() {
 	fmt.Printf("string('%s') → bool: %v\n", textoBool2, boolVal)
 
 	// ─────────────────────────────────────────────────────────
-	// TRAMPA CLÁSICA: int → string directa (¡NO hacer esto!)
+	// TRAMPA CLÁSICA: convertir entero a string sin strconv (¡NO hacer esto!)
 	// ─────────────────────────────────────────────────────────
-	// Si hacés string(65) NO obtenés "65", obtenés "A" (el caracter ASCII 65)
-	// porque string(int) interpreta el int como un punto de código Unicode.
+	// En Go, convertir un entero/rune directamente con string(x) NO convierte
+	// el número a sus dígitos ("65"), sino que busca el carácter Unicode cuyo
+	// código sea 65 ('A').
+	// De hecho, "go vet" bloquea string(int) directamente para evitar este error.
+	// Si hacés string(rune(65)), obtenés "A"; para obtener "65", usá strconv.Itoa(65).
 
-	fmt.Println("\n=== ⚠️ Trampa: string(int) ===")
+	fmt.Println("\n=== ⚠️ Trampa: string(rune(int)) vs strconv.Itoa ===")
 	n := 65
-	malConversión := string(rune(n))   // convierte 65 al caracter Unicode 'A'
-	buenaConversión := strconv.Itoa(n) // convierte al texto "65"
+	comoCaracter := string(rune(n)) // convierte el punto Unicode 65 al carácter "A"
+	comoDigitos := strconv.Itoa(n)  // convierte el número 65 al texto "65"
 
-	fmt.Printf("string(rune(%d)) = '%s'  ← interpreta como Unicode!\n", n, malConversión)
-	fmt.Printf("strconv.Itoa(%d) = '%s'  ← esto es lo que querés\n", n, buenaConversión)
+	fmt.Printf("string(rune(%d)) = '%s'  ← interpreta %d como código Unicode!\n", n, comoCaracter, n)
+	fmt.Printf("strconv.Itoa(%d) = '%s'  ← convierte el número a sus dígitos en texto\n", n, comoDigitos)
 
 	// ─────────────────────────────────────────────────────────
 	// CONVERSIONES CON BYTE Y RUNE

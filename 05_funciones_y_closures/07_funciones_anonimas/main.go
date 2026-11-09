@@ -11,7 +11,7 @@ import "fmt"
 //
 // Sirven para: código que se usa una sola vez y no amerita un
 // nombre propio, o para armar closures (el tema central de esta
-// sección, que vemos a partir del archivo 02).
+// sección, que vemos a partir de 08_que_es_un_closure).
 
 func main() {
 	// ─────────────────────────────────────────────────────────

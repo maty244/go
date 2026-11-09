@@ -15,11 +15,15 @@ import (
 //   go miFuncion()   // arranca concurrentemente, y el código SIGUE
 //                    // a la línea siguiente sin esperarla
 //
-// Tienen un stack inicial pequeño y suelen ser más baratas que un thread del
-// sistema operativo, pero no son gratis: consumen memoria, scheduler y los
-// recursos que abran. Esta es LA herramienta
-// que hace famoso a Go para programas concurrentes (servidores
-// que atienden miles de conexiones a la vez, por ejemplo).
+// Tienen un stack inicial pequeño (~2 KB, que crece y se achica solo) y suelen
+// ser mucho más livianas que un thread del sistema operativo, pero no son gratis:
+// consumen memoria, tiempo de scheduler y los recursos que abran.
+//
+// CONCURRENCIA VS PARALELISMO:
+// - Concurrencia es estructurar el programa para lidiar con varias tareas a la vez.
+// - Paralelismo es ejecutar varias tareas físicamente en el mismo instante en
+//   distintos núcleos de CPU (el runtime de Go reparte las goroutines entre los
+//   núcleos disponibles según GOMAXPROCS).
 
 func saludarDespacio(nombre string) {
 	time.Sleep(50 * time.Millisecond) // simula trabajo que tarda
@@ -70,7 +74,7 @@ func main() {
 		go saludarDespacio(nombre)
 	}
 
-	fmt.Println("Las 3 saludos se lanzaron 'a la vez' (orden de impresión no garantizado)")
+	fmt.Println("Los 3 saludos se lanzaron 'a la vez' (orden de impresión no garantizado)")
 	time.Sleep(100 * time.Millisecond) // de nuevo, un parche temporal
 
 	// ─────────────────────────────────────────────────────────

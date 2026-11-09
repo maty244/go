@@ -8,10 +8,10 @@ import (
 // =========================================================
 // EJERCICIO INTEGRADOR: PROCESAR UN "REQUEST" JSON DE PEDIDO
 // =========================================================
-// Simulamos lo que va a pasar de verdad en HTTP/ (más adelante en
+// Simulamos lo que va a pasar de verdad en 13_http_rest/ (más adelante en
 // la hoja de ruta): recibir un JSON "de afuera", parsearlo,
 // validarlo, y devolver una RESPUESTA en JSON. Acá no hay servidor
-// todavía (eso es el próximo bloque), pero la lógica de JSON es
+// todavía (eso viene más adelante), pero la lógica de JSON es
 // exactamente la misma.
 
 // ─────────────────────────────────────────────────────────
@@ -50,7 +50,7 @@ var siguienteID = 1000
 
 // procesarPedido valida el request y arma la respuesta.
 // Esta función NO sabe nada de HTTP: solo trabaja con los structs
-// de Go. Cuando lleguemos a HTTP/, esta misma función se va a
+// de Go. Cuando lleguemos a 13_http_rest/, esta misma función se va a
 // llamar desde un handler que solo se encarga de leer/escribir
 // los bytes JSON del request/response.
 func procesarPedido(req PedidoRequest) PedidoResponse {

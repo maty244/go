@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"sort"
+	"maps"
+	"slices"
 )
 
 func main() {
@@ -81,6 +82,8 @@ func main() {
 	// ITERAR EN ORDEN DETERMINÍSTICO
 	// ─────────────────────────────────────────────────────────
 	// Si necesitás orden, debés: extraer las claves → ordenarlas → iterar.
+	// Podés hacerlo paso a paso con un slice + slices.Sort, o directo con
+	// slices.Sorted(maps.Keys(m)) (Go 1.23+).
 
 	fmt.Println("\n=== Iterar map en orden alfabético ===")
 
@@ -88,22 +91,17 @@ func main() {
 	for k := range precios {
 		claves = append(claves, k)
 	}
-	sort.Strings(claves)
+	slices.Sort(claves)
 
 	fmt.Println("Lista de precios (ordenada):")
 	for _, k := range claves {
 		fmt.Printf("  %-10s $%.2f\n", k, precios[k])
 	}
 
-	// Orden numérico
-	fmt.Println("\n=== Iterar map en orden numérico ===")
+	// Orden numérico en una línea con slices.Sorted + maps.Keys (Go 1.23+)
+	fmt.Println("\n=== Iterar map en orden numérico (slices.Sorted + maps.Keys) ===")
 
-	clavesInt := make([]int, 0, len(colores))
-	for k := range colores {
-		clavesInt = append(clavesInt, k)
-	}
-	sort.Ints(clavesInt)
-	for _, k := range clavesInt {
+	for _, k := range slices.Sorted(maps.Keys(colores)) {
 		fmt.Printf("  %d: %s\n", k, colores[k])
 	}
 
@@ -111,13 +109,16 @@ func main() {
 	// MODIFICAR UN MAP DURANTE LA ITERACIÓN
 	// ─────────────────────────────────────────────────────────
 	// Go PERMITE agregar o eliminar claves durante el range,
-	// pero el comportamiento tiene reglas:
+	// con reglas claras en la especificación del lenguaje:
 	//
-	// - Si eliminás una clave que AÚN NO fue visitada, no se visita.
-	// - Si agregás una clave nueva, puede o no aparecer en el mismo range.
-	// - Lo más seguro: no modificar el map mientras lo recorrés.
+	// - Eliminar con delete(m, k) durante el range ES SEGURO: si la clave
+	//   aún no fue visitada, ya no se visitará.
+	// - Si agregás una clave nueva durante el range, puede o no aparecer
+	//   en esa misma pasada (por eso evitá insertar mientras iterás).
+	// - En Go moderno (1.21+), para borrar entradas según una condición,
+	//   la forma más limpia es maps.DeleteFunc.
 
-	fmt.Println("\n=== Modificar durante iteración (eliminar) ===")
+	fmt.Println("\n=== Eliminar entradas según condición (maps.DeleteFunc) ===")
 
 	stock := map[string]int{
 		"notebook":    3,
@@ -127,17 +128,13 @@ func main() {
 		"auriculares": 2,
 	}
 
-	// BIEN: recolectar claves a eliminar primero, después eliminar
-	var sinStock []string
-	for producto, cantidad := range stock {
+	maps.DeleteFunc(stock, func(producto string, cantidad int) bool {
 		if cantidad == 0 {
-			sinStock = append(sinStock, producto)
+			fmt.Printf("  Eliminado '%s' (sin stock)\n", producto)
+			return true
 		}
-	}
-	for _, p := range sinStock {
-		delete(stock, p)
-		fmt.Printf("  Eliminado '%s' (sin stock)\n", p)
-	}
+		return false
+	})
 	fmt.Println("Stock activo:", stock)
 
 	// ─────────────────────────────────────────────────────────
@@ -164,12 +161,7 @@ func main() {
 	}
 
 	// Ordenar por clave para output predecible
-	claves2 := make([]string, 0, len(frecuencia))
-	for k := range frecuencia {
-		claves2 = append(claves2, k)
-	}
-	sort.Strings(claves2)
-	for _, p := range claves2 {
+	for _, p := range slices.Sorted(maps.Keys(frecuencia)) {
 		fmt.Printf("  '%-8s': %d veces\n", p, frecuencia[p])
 	}
 
@@ -189,12 +181,12 @@ func main() {
 	}
 
 	fmt.Println("Original (código → país):")
-	for k, v := range codigosPais {
-		fmt.Printf("  %s → %s\n", k, v)
+	for _, k := range slices.Sorted(maps.Keys(codigosPais)) {
+		fmt.Printf("  %s → %s\n", k, codigosPais[k])
 	}
 	fmt.Println("Invertido (país → código):")
-	for k, v := range paisCodigos {
-		fmt.Printf("  %s → %s\n", k, v)
+	for _, k := range slices.Sorted(maps.Keys(paisCodigos)) {
+		fmt.Printf("  %s → %s\n", k, paisCodigos[k])
 	}
 
 	// Caso 3: Agrupar elementos (map de slices)
@@ -221,13 +213,7 @@ func main() {
 		porCategoria[p.Categoria] = append(porCategoria[p.Categoria], p)
 	}
 
-	cats := make([]string, 0, len(porCategoria))
-	for k := range porCategoria {
-		cats = append(cats, k)
-	}
-	sort.Strings(cats)
-
-	for _, cat := range cats {
+	for _, cat := range slices.Sorted(maps.Keys(porCategoria)) {
 		fmt.Printf("\n[%s]\n", cat)
 		for _, p := range porCategoria[cat] {
 			fmt.Printf("  - %-15s $%.2f\n", p.Nombre, p.Precio)
@@ -278,6 +264,6 @@ func main() {
 	fmt.Println("for _, v := range m   → solo valores")
 	fmt.Println()
 	fmt.Println("⚠️ El orden NO está especificado")
-	fmt.Println("   Para ordenar: extraé claves → sort → iterá las claves")
-	fmt.Println("   Para eliminar durante iteración: guardá claves → eliminá después")
+	fmt.Println("   Para ordenar: slices.Sorted(maps.Keys(m)) o slices.Sort(claves)")
+	fmt.Println("   Para filtrar/borrar: maps.DeleteFunc(m, func(k, v) bool { ... })")
 }

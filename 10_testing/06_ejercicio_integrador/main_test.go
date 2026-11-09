@@ -14,34 +14,34 @@ import (
 
 func TestValidarPedido(t *testing.T) {
 	casos := []struct {
-		nombre    string
-		pedido    Pedido
-		errPerado error // nil significa "no debería fallar"
+		nombre      string
+		pedido      Pedido
+		errEsperado error // nil significa "no debería fallar"
 	}{
 		{
-			nombre:    "pedido válido",
-			pedido:    Pedido{Producto: "Notebook", Cantidad: 1, Precio: 450000},
-			errPerado: nil,
+			nombre:      "pedido válido",
+			pedido:      Pedido{Producto: "Notebook", Cantidad: 1, Precio: 450000},
+			errEsperado: nil,
 		},
 		{
-			nombre:    "producto vacío",
-			pedido:    Pedido{Producto: "", Cantidad: 1, Precio: 100},
-			errPerado: ErrProductoVacio,
+			nombre:      "producto vacío",
+			pedido:      Pedido{Producto: "", Cantidad: 1, Precio: 100},
+			errEsperado: ErrProductoVacio,
 		},
 		{
-			nombre:    "cantidad cero",
-			pedido:    Pedido{Producto: "Mouse", Cantidad: 0, Precio: 8500},
-			errPerado: ErrCantidadInvalida,
+			nombre:      "cantidad cero",
+			pedido:      Pedido{Producto: "Mouse", Cantidad: 0, Precio: 8500},
+			errEsperado: ErrCantidadInvalida,
 		},
 		{
-			nombre:    "cantidad negativa",
-			pedido:    Pedido{Producto: "Mouse", Cantidad: -3, Precio: 8500},
-			errPerado: ErrCantidadInvalida,
+			nombre:      "cantidad negativa",
+			pedido:      Pedido{Producto: "Mouse", Cantidad: -3, Precio: 8500},
+			errEsperado: ErrCantidadInvalida,
 		},
 		{
-			nombre:    "precio negativo",
-			pedido:    Pedido{Producto: "Teclado", Cantidad: 1, Precio: -500},
-			errPerado: ErrPrecioInvalido,
+			nombre:      "precio negativo",
+			pedido:      Pedido{Producto: "Teclado", Cantidad: 1, Precio: -500},
+			errEsperado: ErrPrecioInvalido,
 		},
 	}
 
@@ -49,15 +49,15 @@ func TestValidarPedido(t *testing.T) {
 		t.Run(c.nombre, func(t *testing.T) {
 			err := ValidarPedido(c.pedido)
 
-			if c.errPerado == nil {
+			if c.errEsperado == nil {
 				if err != nil {
 					t.Errorf("no se esperaba error, se obtuvo: %v", err)
 				}
 				return
 			}
 
-			if !errors.Is(err, c.errPerado) {
-				t.Errorf("se esperaba %v, se obtuvo: %v", c.errPerado, err)
+			if !errors.Is(err, c.errEsperado) {
+				t.Errorf("se esperaba %v, se obtuvo: %v", c.errEsperado, err)
 			}
 		})
 	}

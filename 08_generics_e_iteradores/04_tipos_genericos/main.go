@@ -34,13 +34,18 @@ func (p *Pila[T]) Apilar(valor T) {
 
 // Desapilar devuelve el último elemento y un bool indicando si
 // había algo (patrón similar al de un map: valor, ok).
+// Nota sobre métodos en tipos genéricos: los métodos usan el T del struct,
+// pero en Go un método NO puede declarar parámetros de tipo nuevos propios
+// (para eso se usa una función libre como Mapear[T, R] en el próximo tema).
 func (p *Pila[T]) Desapilar() (T, bool) {
 	var cero T // zero value de T, para el caso "no hay nada"
 	if len(p.items) == 0 {
 		return cero, false
 	}
-	ultimo := p.items[len(p.items)-1]
-	p.items = p.items[:len(p.items)-1]
+	idx := len(p.items) - 1
+	ultimo := p.items[idx]
+	p.items[idx] = cero // limpiamos la casilla en el array subyacente para ayudar al GC
+	p.items = p.items[:idx]
 	return ultimo, true
 }
 

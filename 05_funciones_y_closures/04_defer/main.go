@@ -46,7 +46,7 @@ func main() {
 	// LOS ARGUMENTOS SE EVALÚAN AHORA, NO DESPUÉS
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== Argumentos evaluados en el momento del defer ===")
-	demostrarEvaluacionArgumenots()
+	demostrarEvaluacionArgumentos()
 
 	// ─────────────────────────────────────────────────────────
 	// DEFER PARA SIMULAR APERTURA/CIERRE DE RECURSOS
@@ -60,7 +60,10 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== Defer y return ===")
 	resultado := contarConDefer()
-	fmt.Println("Resultado retornado:", resultado)
+	fmt.Println("Resultado retornado (sin retorno nombrado):", resultado)
+
+	resultadoModificado := retornoModificadoPorDefer()
+	fmt.Println("Resultado retornado (CON retorno nombrado):", resultadoModificado)
 
 	// ─────────────────────────────────────────────────────────
 	// MEDIR TIEMPO CON DEFER (patrón real muy usado)
@@ -87,6 +90,7 @@ func main() {
 	fmt.Println("defer f()      → ejecuta f() cuando la función actual retorne")
 	fmt.Println("Múltiples:     se ejecutan en orden LIFO (stack)")
 	fmt.Println("Argumentos:    se evalúan YA, no cuando se ejecuta")
+	fmt.Println("Retorno nombrado: defer puede leer y MODIFICAR variables de retorno nombradas")
 	fmt.Println("Uso principal: limpiar recursos (close, unlock, etc.)")
 	fmt.Println("Patrón:        abrir recurso → defer cerrar recurso")
 }
@@ -99,7 +103,7 @@ func demostrarLIFO() {
 	// Al retornar: 3, 2, 1
 }
 
-func demostrarEvaluacionArgumenots() {
+func demostrarEvaluacionArgumentos() {
 	x := 10
 	defer fmt.Println("  valor en defer (capturado ahora):", x) // captura x=10
 
@@ -125,7 +129,16 @@ func contarConDefer() int {
 		fmt.Println("  defer ejecutado, i en ese momento:", i)
 	}()
 	i = 5
-	return i // defer se ejecuta ANTES de que 5 llegue al llamador
+	return i // el valor de retorno (5) se copia ANTES de correr el defer
+}
+
+// Si el retorno es NOMBRADO, un defer con función anónima puede modificarlo
+// antes de que llegue al llamador (muy usado en Go para envolver errores al cerrar recursos).
+func retornoModificadoPorDefer() (total int) {
+	defer func() {
+		total += 10 // modifica la variable de retorno nombrada "total"
+	}()
+	return 5 // asigna total = 5, corre el defer (total = 15), y retorna 15
 }
 
 // Patrón real: medir cuánto tarda una función

@@ -8,13 +8,14 @@ import "fmt"
 // Un string es una secuencia INMUTABLE de bytes.
 // Dos cosas importantes de esa definición:
 //
-//   1. BYTES, no "letras": Go guarda el texto codificado en
-//      UTF-8. Una letra como "a" ocupa 1 byte, pero "ñ" ocupa 2.
-//      (Esto lo vemos a fondo en el tema 02).
+//   1. BYTES, no "letras": los literales de texto se escriben en UTF-8,
+//      pero un string puede contener bytes arbitrarios, incluso UTF-8 inválido.
+//      En UTF-8 "a" ocupa 1 byte y "ñ" ocupa 2.
+//      (Ver 08_utf8_y_runes).
 //
 //   2. INMUTABLE: una vez creado, un string NO se puede modificar.
 //      Toda "modificación" en realidad crea un string nuevo.
-//      (Esto lo vemos a fondo en el tema 04).
+//      (Ver 10_inmutabilidad).
 //
 // Internamente un string es muy parecido a un slice:
 // un puntero a los bytes + una longitud. Por eso copiar
@@ -111,7 +112,7 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	// CONCATENACIÓN BÁSICA con +
 	// ─────────────────────────────────────────────────────────
-	// (La forma eficiente para muchos pedazos la vemos en el tema 05)
+	// (Ver strings.Builder en 11_concatenar_y_builder)
 
 	saludo := "Hola, " + nombre + "!"
 	fmt.Println("\n=== Concatenación ===")
@@ -121,7 +122,7 @@ func main() {
 	// RESUMEN
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== RESUMEN ===")
-	fmt.Println(`  string         → secuencia INMUTABLE de bytes (UTF-8)`)
+	fmt.Println(`  string         → secuencia INMUTABLE de bytes; no garantiza UTF-8 válido`)
 	fmt.Println(`  "texto"        → string normal (interpreta \n, \t, etc.)`)
 	fmt.Println("  `texto`        → raw string (todo literal, sirve multilínea)")
 	fmt.Println(`  'a'            → rune (un carácter), NO un string`)

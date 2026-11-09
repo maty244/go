@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // =========================================================
 // PARÁMETROS CON STRUCT
@@ -124,11 +127,7 @@ func enviarOrden(o *Orden) {
 }
 
 func repetir(s string, n int) string {
-	r := ""
-	for i := 0; i < n; i++ {
-		r += s
-	}
-	return r
+	return strings.Repeat(s, n)
 }
 
 func main() {

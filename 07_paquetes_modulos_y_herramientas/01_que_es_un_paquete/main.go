@@ -57,6 +57,8 @@ func main() {
 	fmt.Println("  04: go.mod a fondo")
 	fmt.Println("  05: un mismo paquete repartido en varios archivos")
 	fmt.Println("  06: ejercicio integrador con un mini proyecto real")
+	fmt.Println("  07: herramientas del toolchain en Go 1.26 (go fix, go vet, go test)")
+	fmt.Println("  08: compilador y runtime (init, escape analysis, GC)")
 
 	// ─────────────────────────────────────────────────────────
 	// RESUMEN

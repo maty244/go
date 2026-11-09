@@ -13,7 +13,7 @@ import "fmt"
 // la función anónima las captura y las mantiene vivas mientras
 // ella misma exista.
 //
-// Es la diferencia entre una función anónima cualquiera (tema 01)
+// Es la diferencia entre una función anónima cualquiera (07_funciones_anonimas)
 // y un closure: el closure usa una variable de AFUERA de su propio
 // cuerpo, y esa variable persiste en memoria por él.
 
@@ -56,7 +56,7 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	// No solo LEE la variable externa: también puede MODIFICARLA,
 	// y ese cambio persiste entre llamadas. Esto es lo que permite
-	// que un closure tenga "estado" (lo profundizamos en el tema 03).
+	// que un closure tenga "estado" (lo profundizamos en 09_contador_con_estado).
 
 	fmt.Println("\n=== Closure que modifica su variable capturada ===")
 

@@ -206,7 +206,9 @@ func main() {
 			p.PrecioCentavos = *u.PrecioCentavos
 		}
 		if u.Stock != nil {
-			p.Stock = u.Stock
+			// Usamos new(*u.Stock) (Go 1.26+) para copiar el int en un destino nuevo
+			// y no compartir el mismo puntero entre el request (u) y el producto (p).
+			p.Stock = new(*u.Stock)
 		}
 	}
 

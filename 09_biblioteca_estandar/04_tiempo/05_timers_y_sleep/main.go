@@ -24,7 +24,7 @@ func main() {
 
 	inicio := time.Now()
 	time.Sleep(200 * time.Millisecond)
-	fmt.Printf("Listo. Pasaron %.0fms\n", time.Since(inicio).Seconds()*1000)
+	fmt.Printf("Listo. Pasaron %dms\n", time.Since(inicio).Milliseconds())
 
 	// ─────────────────────────────────────────────────────────
 	// CUÁNDO USAR Sleep (y cuándo NO)
@@ -42,6 +42,8 @@ func main() {
 	// fondo en 12_concurrencia/) que recibe un valor automáticamente
 	// cuando pasa ese tiempo. Por ahora, alcanza con saber leerlo
 	// con "<-canal", que BLOQUEA hasta que llega el aviso.
+	// (Nota moderna: desde Go 1.23+, el Garbage Collector limpia
+	// automáticamente los timers de time.After que ya nadie escucha).
 
 	fmt.Println("\n=== time.After: esperar con un canal ===")
 	fmt.Println("Esperando la señal de time.After(150ms)...")
@@ -53,9 +55,8 @@ func main() {
 	// time.Timer: COMO time.After, PERO SE PUEDE CANCELAR
 	// ─────────────────────────────────────────────────────────
 	// Un Timer es más flexible: podés detenerlo ANTES de que
-	// dispare, con Stop(). Muy útil para timeouts que a veces se
-	// resuelven antes de tiempo (por ejemplo: "esperá la respuesta
-	// del servidor, pero si tarda más de 2 segundos, cancelá").
+	// dispare con Stop(), o reutilizarlo con Reset(d). Muy útil
+	// para timeouts que se resuelven antes de tiempo.
 
 	fmt.Println("\n=== time.Timer: se puede cancelar ===")
 

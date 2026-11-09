@@ -11,7 +11,8 @@ import "fmt"
 // REGLA DE ORO:
 //   NUNCA desreferencies (*p) un puntero nil.
 //   → Causa un panic en tiempo de ejecución: "nil pointer dereference"
-//   → Es como ir a la dirección 0x0 a buscar algo: no existe.
+//   → nil significa ausencia de destino. No lo uses como una dirección
+//     numérica ni deduzcas dónde empieza la memoria física del proceso.
 //
 // ¿Cuándo un puntero puede ser nil?
 //   - Variable declarada pero no inicializada:  var p *int
@@ -47,7 +48,7 @@ func main() {
 	// fmt.Println(*p)  →  panic: runtime error: invalid memory address or nil pointer dereference
 
 	// ─────────────────────────────────────────────────────────
-	// CÓMO EVITARLO: siempre verificar nil antes de desreferenciar
+	// CÓMO EVITARLO: comprobar nil cuando el contrato admite ausencia
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== Patrón correcto: verificar nil ===")
 
@@ -146,32 +147,44 @@ func main() {
 	}
 
 	// ─────────────────────────────────────────────────────────
-	// ERROR TÍPICO 3: dangling pointer via closure (captura de loop var)
+	// ERROR TÍPICO 3: confundir una copia de range con el elemento original
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== Error típico 3: capturar puntero de loop ===")
 
 	numeros := []int{1, 2, 3, 4, 5}
 
-	// MAL: todos los punteros apuntan a la MISMA variable del loop
-	var punterosMAL []*int
+	// Go 1.22+: := declara una n distinta por iteración. Sus direcciones
+	// siguen siendo válidas después del loop, pero apuntan a COPIAS de ints,
+	// no a numeros[i]. No hay punteros colgantes en este ejemplo.
+	var copias []*int
 	for _, n := range numeros {
-		punterosMAL = append(punterosMAL, &n) // &n es siempre la misma variable!
+		copias = append(copias, &n)
 	}
-	fmt.Print("MAL (todos igual, el valor final de n): ")
-	for _, p := range punterosMAL {
+	fmt.Print("Copias por iteración: ")
+	for _, p := range copias {
 		fmt.Print(*p, " ")
 	}
 	fmt.Println()
+	*copias[0] = 99
+	fmt.Println("Cambiar la copia no cambia numeros:", numeros) // [1 2 3 4 5]
 
-	// BIEN: copiar en variable local dentro del loop
-	var punterosBIEN []*int
-	for _, n := range numeros {
-		copia := n // variable nueva en cada iteración
-		punterosBIEN = append(punterosBIEN, &copia)
+	// Si queremos los elementos reales, tomamos la dirección por índice.
+	var elementos []*int
+	for i := range numeros {
+		elementos = append(elementos, &numeros[i])
 	}
-	fmt.Print("BIEN (cada uno tiene su propio valor): ")
-	for _, p := range punterosBIEN {
-		fmt.Print(*p, " ")
+	*elementos[0] = 100
+	fmt.Println("Cambiar el elemento sí cambia numeros:", numeros) // [100 2 3 4 5]
+
+	// Con = reasignamos una variable exterior. En ese caso sí se comparte.
+	var reutilizada int
+	var compartidos []*int
+	for _, reutilizada = range numeros {
+		compartidos = append(compartidos, &reutilizada)
+	}
+	fmt.Print("Variable exterior reutilizada: ")
+	for _, p := range compartidos {
+		fmt.Print(*p, " ") // 5, 5, 5, 5, 5
 	}
 	fmt.Println()
 
@@ -179,31 +192,33 @@ func main() {
 	// RECOVER: capturar el panic de nil pointer (caso extremo)
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== recover: capturar un panic ===")
-	resultado := operacionSegura(nil)
+	// Experimento de panic/recover, no una forma de validar datos habituales.
+	// Si nil es una entrada esperada, comprobalo antes de acceder al campo.
+	resultado := demostrarRecover(nil)
 	fmt.Printf("Resultado seguro: '%s'\n", resultado)
 
 	// ─────────────────────────────────────────────────────────
 	// RESUMEN DE REGLAS
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== Reglas para evitar nil panic ===")
-	fmt.Println("1. Antes de *p, verificar: if p != nil { ... }")
+	fmt.Println("1. Si nil es posible, validalo antes de *p; documentá esa posibilidad")
 	fmt.Println("2. Funciones que retornan *T deben documentar si pueden retornar nil")
 	fmt.Println("3. Campos *T en structs: verificar antes de acceder")
-	fmt.Println("4. Evitar capturar &loopVar directamente, usar una copia")
+	fmt.Println("4. &n con := apunta a una copia por iteración; &slice[i] al elemento real")
 	fmt.Println("5. new(T) o &T{} son formas seguras de crear punteros no-nil")
 }
 
 func buscarProducto(catalogo []*Producto, id int) *Producto {
 	for _, p := range catalogo {
-		if p.ID == id {
+		if p != nil && p.ID == id { // un slice de punteros también puede contener nil
 			return p
 		}
 	}
 	return nil // explícito: "no encontrado"
 }
 
-// operacionSegura usa recover para atrapar panics
-func operacionSegura(p *Producto) (resultado string) {
+// demostrarRecover muestra el mecanismo; el manejo normal de ausencia usa if.
+func demostrarRecover(p *Producto) (resultado string) {
 	defer func() {
 		if r := recover(); r != nil {
 			resultado = fmt.Sprintf("panic recuperado: %v", r)

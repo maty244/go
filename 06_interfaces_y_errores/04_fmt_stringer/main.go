@@ -16,8 +16,8 @@ import "fmt"
 // la buscan automáticamente: si tu tipo la tiene, la usan en vez
 // de imprimir los campos "en crudo".
 //
-// Esto es EXACTAMENTE lo que viste en Punteros 12 sin que lo
-// llamáramos por su nombre (el método String() en el struct Punto).
+// Esto es EXACTAMENTE lo que viste en 04_structs_metodos_y_punteros/11_metodos
+// sin que lo llamáramos por su nombre (el método String() en el struct Punto).
 
 // ─────────────────────────────────────────────────────────
 // SIN Stringer: Go imprime los campos tal cual
@@ -40,6 +40,9 @@ type Producto struct {
 
 // Al definir String(), Producto cumple fmt.Stringer.
 // A partir de acá, CUALQUIER fmt.Println(p) usa esto.
+// ¡CUIDADO!: Dentro de String() NUNCA hagas fmt.Sprintf("%v", p) ni "%s" pasando `p`
+// entero, porque fmt volvería a llamar a p.String() generando recursión infinita (stack overflow).
+// Siempre formateá sus campos individuales (p.Nombre, p.Precio, etc.).
 func (p Producto) String() string {
 	estado := "disponible"
 	if p.Stock == 0 {

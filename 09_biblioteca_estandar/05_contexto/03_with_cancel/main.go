@@ -25,13 +25,18 @@ func main() {
 	fmt.Println("=== context.WithCancel: cancelar manualmente ===")
 
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	fmt.Println("¿Ya se canceló?", ctx.Err())
 
-	cancel() // cancelamos ahora, a propósito
+	cancel() // cancelamos ahora, a propósito (llamar cancel() más de una vez es seguro)
 
 	fmt.Println("Después de llamar cancel():", ctx.Err())
 	fmt.Println("¿Es context.Canceled?", errors.Is(ctx.Err(), context.Canceled))
+
+	// Nota: si además de cancelar querés adjuntar un error específico
+	// explicando el motivo, existe context.WithCancelCause(padre) y
+	// luego consultás el motivo con context.Cause(ctx).
 
 	// ─────────────────────────────────────────────────────────
 	// CASO REAL: cancelar el resto de un trabajo apenas algo falla
@@ -67,6 +72,7 @@ func main() {
 	fmt.Println("\n=== Esperar cancelación con select ===")
 
 	ctx3, cancel3 := context.WithCancel(context.Background())
+	defer cancel3()
 
 	// Simulamos que "algo" cancela el contexto en 80ms, en paralelo
 	// (esto usa una goroutine, que vas a estudiar a fondo en

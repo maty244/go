@@ -20,10 +20,12 @@ import (
 // de los dos funciona, pero fmt.Errorf es más flexible.
 
 func main() {
-	fmt.Println("=== errors.New: mensaje fijo ===")
+	fmt.Println("=== errors.New: mensaje fijo (cada llamada crea una instancia única) ===")
 
 	errFijo := errors.New("stock agotado")
+	otroIgual := errors.New("stock agotado")
 	fmt.Println(errFijo)
+	fmt.Println("¿Dos errors.New con el mismo texto son == ?", errFijo == otroIgual) // false (distintos punteros internos)
 
 	fmt.Println("\n=== fmt.Errorf: mensaje con datos dinámicos ===")
 
@@ -37,7 +39,7 @@ func main() {
 	// ─────────────────────────────────────────────────────────
 	// Un patrón MUY común: declarar errores conocidos como
 	// variables globales del paquete, para poder compararlos
-	// después con errors.Is (lo vemos a fondo en el tema 03).
+	// después con errors.Is (lo vemos a fondo en 15_errors_is_a_fondo).
 	// Por convención se nombran empezando con "Err".
 
 	fmt.Println("\n=== Errores centinela (variables reusables) ===")
@@ -53,7 +55,7 @@ func main() {
 	// errors.New   → mensaje fijo, reusable, se compara con errors.Is
 	// fmt.Errorf   → mensaje con contexto específico de ESTA llamada
 	//                (y además permite ENVOLVER otro error con %w,
-	//                lo vemos en el próximo tema)
+	//                lo vemos en 14_wrapping_con_porcentaje_w)
 
 	// ─────────────────────────────────────────────────────────
 	// RESUMEN

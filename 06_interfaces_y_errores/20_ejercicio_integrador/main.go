@@ -9,9 +9,9 @@ import (
 // EJERCICIO INTEGRADOR: REGISTRO DE USUARIO CON MANEJO DE
 // ERRORES COMPLETO
 // =========================================================
-// Combinamos todo lo visto en ErroresAvanzados: errores centinela,
-// wrapping con %w, un error personalizado con campos, errors.Join
-// para juntar validaciones, y recover() como red de seguridad.
+// Combinamos todo lo visto sobre manejo de errores en 06_interfaces_y_errores:
+// errores centinela, wrapping con %w, un error personalizado con campos,
+// errors.Join para juntar validaciones, y recover() como red de seguridad.
 
 // ─────────────────────────────────────────────────────────
 // ERRORES CENTINELA

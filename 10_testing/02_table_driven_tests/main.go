@@ -38,7 +38,7 @@ func main() {
 		fmt.Printf("  Clasificar(%.2f) = %s\n", p, Clasificar(p))
 	}
 
-	fmt.Println("\n(mirá main_test.go: un test-driven test para Clasificar)")
+	fmt.Println("\n(mirá main_test.go: un table-driven test para Clasificar)")
 
 	// ─────────────────────────────────────────────────────────
 	// RESUMEN

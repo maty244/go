@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -41,7 +42,7 @@ func guardarCarrito(ruta string, c Carrito) error {
 	if err != nil {
 		return fmt.Errorf("guardarCarrito: %w", err)
 	}
-	if err := os.WriteFile(ruta, datos, 0644); err != nil {
+	if err := os.WriteFile(ruta, datos, 0o644); err != nil {
 		return fmt.Errorf("guardarCarrito: %w", err)
 	}
 	return nil
@@ -126,8 +127,8 @@ func main() {
 	fmt.Println("\n--- Intentar cargar un carrito que no existe ---")
 
 	_, err = cargarCarrito(filepath.Join(os.TempDir(), "no_existe.json"))
-	if err != nil {
-		fmt.Println("Error esperado:", err)
+	if errors.Is(err, os.ErrNotExist) {
+		fmt.Println("Error esperado (os.ErrNotExist):", err)
 		fmt.Println("(en un programa real, acá se crearía un carrito vacío nuevo)")
 	}
 
@@ -138,6 +139,6 @@ func main() {
 	fmt.Println("  os.WriteFile/ReadFile   → guardar y cargar el carrito completo")
 	fmt.Println("  json.MarshalIndent      → convertir el carrito a JSON legible")
 	fmt.Println("  json.Unmarshal          → reconstruir el struct al cargar")
-	fmt.Println("  os.IsNotExist (implícito en el error) → manejar 'primera vez'")
+	fmt.Println("  errors.Is + ErrNotExist → detectar 'primera vez' a través de %w")
 	fmt.Println("  Patrón general          → así persiste config/estado sin una base de datos")
 }

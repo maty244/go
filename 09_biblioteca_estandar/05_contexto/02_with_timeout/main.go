@@ -20,6 +20,17 @@ import (
 // 09_biblioteca_estandar/04_tiempo/05_timers_y_sleep) que se cierra cuando: (a) se cumple el timeout, o
 // (b) alguien llama cancel() manualmente. Leer de ese canal
 // (<-ctx.Done()) te avisa "andá terminando".
+//
+// DOS PREGUNTAS CLAVE:
+// 1. ¿Cancelar un context mata automáticamente una goroutine?
+//    NO. La cancelación en Go es COOPERATIVA: el context solo cierra
+//    su canal Done() y setea Err(). El código que hace el trabajo
+//    debe consultar ctx.Done() / ctx.Err() (o pasarlo a funciones de
+//    red/DB que lo consulten) para frenar ordenadamente.
+// 2. ¿Por qué llamamos a defer cancel() incluso si el timeout vence solo?
+//    Porque lo habitual es que la operación termine ANTES del timeout;
+//    llamar a cancel() libera de inmediato el timer interno del context
+//    en lugar de dejarlo vivo en memoria hasta que venza el plazo.
 
 func main() {
 	fmt.Println("=== context.WithTimeout ===")

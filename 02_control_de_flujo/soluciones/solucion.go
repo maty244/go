@@ -3,6 +3,9 @@ package solucion
 import "strconv"
 
 func FizzBuzz(limite int) []string {
+	if limite <= 0 {
+		return nil
+	}
 	resultado := make([]string, 0, limite)
 	for numero := 1; numero <= limite; numero++ {
 		switch {

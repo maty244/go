@@ -100,6 +100,9 @@ func main() {
 	fmt.Println("  2. Sumarle 1")
 	fmt.Println("  3. Guardar el resultado")
 	fmt.Println("  Si dos goroutines hacen esto a la vez, uno de los incrementos se pierde")
+	fmt.Println("  (Nota: para un único entero o booleano suelto también existe el paquete")
+	fmt.Println("   'sync/atomic' con atomic.Int64 / atomic.Bool; Mutex sirve para proteger")
+	fmt.Println("   cualquier struct, map o grupo de variables relacionadas).")
 
 	// ─────────────────────────────────────────────────────────
 	// RESUMEN

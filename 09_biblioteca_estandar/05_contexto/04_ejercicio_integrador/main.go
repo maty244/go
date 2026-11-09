@@ -10,7 +10,7 @@ import (
 // =========================================================
 // EJERCICIO INTEGRADOR: SIMULANDO UN REQUEST CON TIMEOUT
 // =========================================================
-// Esto es EXACTAMENTE lo que va a pasar en HTTP/ más adelante en
+// Esto es EXACTAMENTE lo que va a pasar en 13_http_rest/ más adelante en
 // la hoja de ruta: cada request que llega a un servidor Go trae
 // su propio context, y ese context se propaga a TODO lo que el
 // handler necesite hacer (consultar la base de datos, llamar a
@@ -22,15 +22,16 @@ import (
 // llega a tiempo.
 var ErrTimeout = errors.New("la operación no completó a tiempo")
 
-// consultarProducto simula una consulta a una base de datos (la
-// vas a reemplazar por una consulta real en BaseDatos/, más
-// adelante). Acá, "tarda" según cuánto le digamos.
+// consultarProducto simula una consulta a un servicio externo o DB.
+// Acá "tarda" según cuánto le digamos, pero respeta el ctx.
 func consultarProducto(ctx context.Context, nombre string, latencia time.Duration) (string, error) {
 	select {
 	case <-time.After(latencia):
 		return fmt.Sprintf("%s: en stock, $%.2f", nombre, 999.99), nil
 	case <-ctx.Done():
-		return "", fmt.Errorf("consultarProducto(%s): %w", nombre, ErrTimeout)
+		// Envolvemos tanto nuestro error de dominio (ErrTimeout) como la causa
+		// del context (ctx.Err()) usando múltiples %w (soportado desde Go 1.20+).
+		return "", fmt.Errorf("consultarProducto(%s): %w (%w)", nombre, ErrTimeout, ctx.Err())
 	}
 }
 
@@ -46,7 +47,7 @@ func manejarRequest(productos []string, latenciaPorProducto time.Duration, timeo
 	for _, producto := range productos {
 		resultado, err := consultarProducto(ctx, producto, latenciaPorProducto)
 		if err != nil {
-			if errors.Is(err, ErrTimeout) || errors.Is(ctx.Err(), context.DeadlineExceeded) {
+			if errors.Is(err, ErrTimeout) && errors.Is(err, context.DeadlineExceeded) {
 				fmt.Printf("  ⏱  %s: se cortó por timeout\n", producto)
 			} else {
 				fmt.Printf("  ✗  %s: error inesperado: %v\n", producto, err)

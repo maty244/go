@@ -66,6 +66,15 @@ func main() {
 	oracion := "el perro de san roque no tiene rabo"
 	fmt.Println("palabras:", len(strings.Fields(oracion))) // 8
 
+	// En Go moderno (1.24+), si solo querés recorrer los pedazos en un for range
+	// sin alojar un slice []string en memoria, podés usar los iteradores
+	// strings.SplitSeq, strings.FieldsSeq y strings.Lines:
+	fmt.Print("Recorriendo con FieldsSeq (sin crear []string): ")
+	for palabra := range strings.FieldsSeq(oracion) {
+		fmt.Printf("[%s] ", palabra)
+	}
+	fmt.Println()
+
 	// ─────────────────────────────────────────────────────────
 	// Join: la inversa de Split
 	// ─────────────────────────────────────────────────────────
@@ -129,12 +138,13 @@ func main() {
 	// RESUMEN
 	// ─────────────────────────────────────────────────────────
 	fmt.Println("\n=== RESUMEN ===")
-	fmt.Println("  ToUpper/ToLower      → MAYÚS/minús (maneja ñ y tildes)")
-	fmt.Println("  Split(s, sep)        → []string partido por sep")
-	fmt.Println("  Fields(s)            → []string partido por espacios (robusto)")
-	fmt.Println("  Join(slice, sep)     → la inversa de Split")
-	fmt.Println("  TrimSpace(s)         → limpia espacios de los bordes")
-	fmt.Println("  TrimPrefix/Suffix    → saca un prefijo/sufijo exacto")
-	fmt.Println("  ReplaceAll(s, v, n)  → reemplaza todas las apariciones")
+	fmt.Println("  ToUpper/ToLower        → MAYÚS/minús (maneja ñ y tildes)")
+	fmt.Println("  Split(s, sep)          → []string partido por sep")
+	fmt.Println("  Fields(s)              → []string partido por espacios (robusto)")
+	fmt.Println("  SplitSeq / FieldsSeq   → iteran pedazos sin alojar []string (Go 1.24+)")
+	fmt.Println("  Join(slice, sep)       → la inversa de Split")
+	fmt.Println("  TrimSpace(s)           → limpia espacios de los bordes")
+	fmt.Println("  TrimPrefix/Suffix      → saca un prefijo/sufijo exacto")
+	fmt.Println("  ReplaceAll(s, v, n)    → reemplaza todas las apariciones")
 	fmt.Println("  Todas RETORNAN un string nuevo: hay que asignar.")
 }

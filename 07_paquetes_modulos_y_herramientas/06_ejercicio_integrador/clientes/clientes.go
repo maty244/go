@@ -2,7 +2,10 @@
 // y su historial de compras.
 package clientes
 
-import "fmt"
+import (
+	"fmt"
+	"slices"
+)
 
 // Cliente representa a un comprador registrado.
 type Cliente struct {
@@ -35,9 +38,11 @@ func (c *Cliente) RegistrarCompra(descripcion string) {
 	c.compras = append(c.compras, descripcion)
 }
 
-// Historial devuelve las compras registradas (solo lectura).
+// Historial devuelve una copia de las compras registradas (solo lectura).
+// Usamos slices.Clone para que quien llame a Historial() no pueda modificar
+// el array subyacente privado de c.compras desde afuera.
 func (c *Cliente) Historial() []string {
-	return c.compras
+	return slices.Clone(c.compras)
 }
 
 // ResumenCliente arma un texto legible del historial de un cliente.

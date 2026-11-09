@@ -1,8 +1,13 @@
-# 13 — HTTP REST
+# 13 — HTTP REST (opcional)
 
 ## Objetivo
 
 Construir servidores y clientes HTTP correctos usando la biblioteca estándar.
+
+Esta etapa es una aplicación de Go a la web. La ruta principal sobre cómo
+funciona el lenguaje termina en `12_concurrencia`; podés dejar HTTP para más
+adelante sin perder los fundamentos. No necesitás crear una API para practicar
+tipos, memoria, errores, tests o concurrencia.
 
 ## Recorrido
 

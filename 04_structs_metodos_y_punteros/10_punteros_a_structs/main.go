@@ -8,7 +8,7 @@ import "fmt"
 // Un struct puede contener campos de tipo puntero (*T).
 // Esto permite:
 //
-//  1. Campos OPCIONALES (nil = ausente) — ya visto en 05
+//  1. Campos OPCIONALES (nil = ausente) — ya visto en 09
 //  2. Campos que COMPARTEN el mismo dato entre structs
 //  3. Estructuras RECURSIVAS (linked list, árbol, grafo)
 //     → Un struct NO puede contenerse a sí mismo por valor
@@ -53,16 +53,18 @@ type ListaEnlazada struct {
 }
 
 func (l *ListaEnlazada) Agregar(v int) {
+	// l identifica a la lista real. nuevo guarda la dirección de OTRO nodo.
+	// Nunca copiamos la lista completa para agregar un elemento.
 	nuevo := &Nodo{Valor: v}
 	if l.Cabeza == nil {
 		l.Cabeza = nuevo
 	} else {
 		// Recorrer hasta el último nodo
-		actual := l.Cabeza
+		actual := l.Cabeza // copia el puntero, no clona el primer nodo
 		for actual.Siguiente != nil {
-			actual = actual.Siguiente
+			actual = actual.Siguiente // solo mueve el cursor; no cambia Cabeza
 		}
-		actual.Siguiente = nuevo
+		actual.Siguiente = nuevo // sí cambia un campo del último nodo real
 	}
 	l.Largo++
 }
@@ -81,6 +83,8 @@ func (l *ListaEnlazada) Imprimir() {
 }
 
 func (l *ListaEnlazada) Buscar(v int) *Nodo {
+	// Al retornar actual, el llamador recibe acceso al nodo real. Cambiar
+	// su Valor después de encontrarlo también modifica lo que ve la lista.
 	actual := l.Cabeza
 	for actual != nil {
 		if actual.Valor == v {
